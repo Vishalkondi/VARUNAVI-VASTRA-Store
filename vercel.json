@@ -17,6 +17,18 @@
       "destination": "/journal/:id",
       "permanent": true
     },
+    {
+      "source": "/product",
+      "has": [{ "type": "query", "key": "id", "value": "(?<id>.+)" }],
+      "destination": "/product/:id",
+      "permanent": true
+    },
+    {
+      "source": "/post",
+      "has": [{ "type": "query", "key": "id", "value": "(?<id>.+)" }],
+      "destination": "/journal/:id",
+      "permanent": true
+    },
     { "source": "/index.html", "destination": "/", "permanent": true }
   ]
 }
