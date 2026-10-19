@@ -1,0 +1,217 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useRef, useState } from "react";
+import { SITE, WEAVES } from "@/lib/data";
+import { useCart, useStored, useWishlist, write } from "@/lib/store";
+import { priceText, productUrl, searchProducts, waLink } from "@/lib/utils";
+import { IMAGE_SIZES, Logo, ProductImage } from "./Bits";
+import { BagIcon, CloseIcon, HeartIcon, MenuIcon, SearchIcon } from "./Icons";
+
+// Suggested in the search panel; only terms that find at least one saree are shown.
+const POPULAR = ["Block print", "Zari", "Temple border", "Handloom", "Office", "Festive", "Red", "Blue"].filter((t) => searchProducts(t).length);
+const NO_SEARCHES: string[] = [];
+
+type NavItem ={ label: string; key: string; href: string; children?: { label: string; href: string }[] };
+
+const NAV: NavItem[] = [
+  {
+    label: "Shop", key: "shop", href: "/shop",
+    children: [
+      { label: "All Sarees", href: "/shop" },
+      ...Object.entries(WEAVES).map(([k, w]) => ({ label: w.label, href: "/shop?weave=" + k })),
+      { label: "New Arrivals", href: "/shop?new=1" },
+      { label: "Bestsellers", href: "/shop?best=1" },
+      { label: "Help me choose", href: "/finder" },
+    ],
+  },
+  { label: "Cotton Sarees", key: "cotton", href: "/shop" },
+  { label: "New Arrivals", key: "new", href: "/shop?new=1" },
+  { label: "Bestsellers", key: "best", href: "/shop?best=1" },
+  { label: "Our Story", key: "story", href: "/our-story" },
+  { label: "Journal", key: "journal", href: "/journal" },
+  { label: "Custom Order", key: "custom", href: "/custom-order" },
+  { label: "Contact", key: "contact", href: "/contact" },
+];
+
+function activeKey(path: string, query: URLSearchParams | null) {
+  if (path === "/shop") {
+    if (query?.get("new") === "1") return "new";
+    if (query?.get("best") === "1") return "best";
+    return "cotton";
+  }
+  if (path.startsWith("/product/")) return "cotton";
+  if (path.startsWith("/journal")) return "journal";
+  return ({ "/our-story": "story", "/custom-order": "custom", "/contact": "contact" } as Record<string, string>)[path] || "";
+}
+
+// The query string is only known in the browser, so the header first renders without it.
+export default function Header() {
+  return (
+    <Suspense fallback={<HeaderView query={null} />}>
+      <HeaderWithQuery />
+    </Suspense>
+  );
+}
+
+function HeaderWithQuery() {
+  return <HeaderView query={useSearchParams()} />;
+}
+
+function HeaderView({ query }: { query: URLSearchParams | null }) {
+  const path = usePathname();
+  const router = useRouter();
+  const active = activeKey(path, query);
+  const { count } = useCart();
+  const wishCount = useWishlist().length;
+  const [drawer, setDrawer] = useState(false);
+  const [search, setSearch] = useState(false);
+  const [q, setQ] = useState("");
+  const searchInput = useRef<HTMLInputElement>(null);
+
+  // Close panels whenever the page changes.
+  const queryString = query?.toString();
+  useEffect(() => { setDrawer(false); setSearch(false); }, [path, queryString]);
+
+  useEffect(() => {
+    if (search) searchInput.current?.focus();
+    document.body.style.overflow = drawer || search ? "hidden" : "";
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") { setDrawer(false); setSearch(false); } };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [drawer, search]);
+
+  // On computers the header shrinks to a slim bar once the page scrolls. Two thresholds stop it
+  // flickering when shrinking the header itself moves the page.
+  const [compact, setCompact] = useState(false);
+  useEffect(() => {
+    const check = () => setCompact((on) => (on ? window.scrollY > 60 : window.scrollY > 160));
+    check();
+    window.addEventListener("scroll", check, { passive: true });
+    return () => window.removeEventListener("scroll", check);
+  }, []);
+
+  const results = q.trim() ? searchProducts(q.trim()).slice(0, 6) : [];
+
+  // Recent searches, saved in this browser (newest first).
+  const recent = useStored<string[]>("vv_searches", NO_SEARCHES);
+  const remember = (term: string) => write("vv_searches", [term, ...recent.filter((t) => t.toLowerCase() !== term.toLowerCase())].slice(0, 5));
+  function runSearch(term: string) {
+    remember(term);
+    setQ("");
+    router.push("/shop?q=" + encodeURIComponent(term));
+  }
+
+  return (
+    <>
+      <a className="sr-only" href="#main">Skip to content</a>
+      <div className="announce">
+        {SITE.announcement || (
+          <>Handcrafted cotton sarees · <a href={waLink()} target="_blank" rel="noopener"><span className="hide-m">Chat with us on </span>WhatsApp {SITE.phoneDisplay}</a></>
+        )}
+      </div>
+      <header className={"header" + (compact ? " is-compact" : "")}>
+        <div className="wrap">
+          <div className="header__bar">
+            <div className="header__left">
+              <button className="icon-btn menu-btn" aria-label="Open menu" onClick={() => setDrawer(true)}><MenuIcon /></button>
+              <button className="icon-btn" aria-label="Search" onClick={() => setSearch(true)}><SearchIcon /><span className="search-label">Search</span></button>
+            </div>
+            <Link className="logo" href="/" aria-label={SITE.name + " home"}><Logo /></Link>
+            <div className="header__right">
+              <Link className="icon-btn wish-link" href="/wishlist" aria-label="Wishlist"><HeartIcon /><span className="count" hidden={wishCount === 0}>{wishCount}</span></Link>
+              <Link className="icon-btn" href="/cart" aria-label="Cart"><BagIcon /><span className="count" hidden={count === 0}>{count}</span></Link>
+            </div>
+          </div>
+          <nav aria-label="Main">
+            <ul className="nav">
+              {NAV.map((n) => (
+                <li key={n.key}>
+                  <Link className={"nav__link" + (n.key === active ? " is-active" : "")} href={n.href} aria-haspopup={n.children ? "true" : undefined}>{n.label}</Link>
+                  {n.children ? (
+                    <ul className="nav__drop">
+                      {n.children.map((c) => <li key={c.href + c.label}><Link href={c.href}>{c.label}</Link></li>)}
+                    </ul>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </div>
+      </header>
+
+      <div className={"drawer" + (drawer ? " is-open" : "")} aria-hidden={!drawer}>
+        <div className="drawer__scrim" onClick={() => setDrawer(false)} />
+        <div className="drawer__panel" role="dialog" aria-modal="true" aria-label="Menu">
+          <div className="drawer__head">
+            <Link className="logo" href="/"><Logo /></Link>
+            <button className="icon-btn" aria-label="Close menu" onClick={() => setDrawer(false)}><CloseIcon /></button>
+          </div>
+          <ul>
+            {NAV.map((n) => (
+              <li key={n.key}>
+                {n.children ? (
+                  <details>
+                    <summary>{n.label}</summary>
+                    <ul>{n.children.map((c) => <li key={c.href + c.label}><Link href={c.href}>{c.label}</Link></li>)}</ul>
+                  </details>
+                ) : <Link href={n.href}>{n.label}</Link>}
+              </li>
+            ))}
+            <li><Link href="/finder">Help me choose</Link></li>
+            <li><Link href="/wishlist">Wishlist</Link></li>
+            <li><Link href="/faq">FAQ</Link></li>
+          </ul>
+          <div className="drawer__foot">
+            <p>{SITE.address}</p>
+            <a className="btn btn--whatsapp btn--block" href={waLink()} target="_blank" rel="noopener">Chat on WhatsApp</a>
+          </div>
+        </div>
+      </div>
+
+      <div className={"search" + (search ? " is-open" : "")} aria-hidden={!search}>
+        <div className="search__scrim" onClick={() => setSearch(false)} />
+        <div className="search__panel" role="dialog" aria-modal="true" aria-label="Search">
+          <div className="wrap">
+            <form
+              className="search__form"
+              role="search"
+              onSubmit={(e) => { e.preventDefault(); if (q.trim()) runSearch(q.trim()); }}
+            >
+              <SearchIcon width={22} height={22} />
+              <label className="sr-only" htmlFor="search-input">Search sarees</label>
+              <input
+                id="search-input" name="q" type="search" placeholder="Search sarees, colours, weaves" autoComplete="off"
+                value={q} onChange={(e) => setQ(e.target.value)} ref={searchInput}
+              />
+              <button type="button" className="icon-btn" aria-label="Close search" onClick={() => setSearch(false)}><CloseIcon /></button>
+            </form>
+            <div className="search__results">
+              {!q.trim() ? (
+                <div className="search__suggest">
+                  {recent.length ? (
+                    <div>
+                      <h3>Recent searches <button type="button" className="link-btn" onClick={() => write("vv_searches", [])}>Clear</button></h3>
+                      <div className="chips">{recent.map((t) => <button type="button" className="chip" key={t} onClick={() => runSearch(t)}>{t}</button>)}</div>
+                    </div>
+                  ) : null}
+                  <div>
+                    <h3>Popular searches</h3>
+                    <div className="chips">{POPULAR.map((t) => <button type="button" className="chip" key={t} onClick={() => runSearch(t)}>{t}</button>)}</div>
+                  </div>
+                  <p className="hint">Not sure what you want? <Link href="/finder">Let us help you choose</Link>.</p>
+                </div>
+              ) : results.length ? results.map((p) => (
+                <Link className="search__item" href={productUrl(p)} key={p.id} onClick={() => remember(q.trim())}>
+                  <span className="media"><ProductImage p={p} sizes={IMAGE_SIZES.thumb} /></span>
+                  <span>{p.name}<small>{WEAVES[p.weave].label} · {priceText(p)}</small></span>
+                </Link>
+              )) : <p className="hint">No sarees match &quot;{q.trim()}&quot;. Try a colour like &quot;blue&quot; or a weave like &quot;ikat&quot;.</p>}
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}

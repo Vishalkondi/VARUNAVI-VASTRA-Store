@@ -1,0 +1,21 @@
+[build]
+  command = "npm run build"
+  publish = "out"
+
+# Keep links to the old plain-HTML site working.
+[[redirects]]
+  from = "/product.html"
+  to = "/product/:id"
+  status = 301
+  query = { id = ":id" }
+
+[[redirects]]
+  from = "/post.html"
+  to = "/journal/:id"
+  status = 301
+  query = { id = ":id" }
+
+[[redirects]]
+  from = "/index.html"
+  to = "/"
+  status = 301

@@ -1,0 +1,25 @@
+{
+  "name": "varunavi-vastra",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "npx serve out",
+    "postbuild": "node scripts/flatten-prefetch.mjs",
+    "prebuild": "node scripts/optimize-photos.mjs",
+    "photos": "node scripts/optimize-photos.mjs"
+  },
+  "dependencies": {
+    "next": "^16.4.1",
+    "qrcode-generator": "^2.0.4",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.5",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "typescript": "^5.9.3"
+  }
+}
