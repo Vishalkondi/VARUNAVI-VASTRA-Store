@@ -50,14 +50,9 @@ Open a terminal in this folder (`D:\varunavi-vastra`), then:
 
 ## Vercel
 
-`vercel.json` holds the Vercel settings (build command, `out` folder, redirects for old links). To publish there the first time:
+The Vercel project "varunavi-vastra" is linked to the GitHub repository, so every push to `main` builds and publishes the site automatically.
 
-```
-npx vercel login
-npx vercel deploy --prod
-```
-
-Answer the questions with the defaults (team "vishalkondi-team", project name "varunavi-vastra").
+`vercel.json` holds the settings: build with `npm run build`, publish the `out` folder as a plain static site, serve `/shop` from `shop.html` (`cleanUrls`), and redirect old links. Keep `"framework": null`. With `"nextjs"`, Vercel switches to its server mode, changes the build and fails with `NEXT_NO_ROUTES_MANIFEST`, because `out/` holds a finished static site rather than Next's server files.
 
 ## Publish
 
