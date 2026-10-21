@@ -110,3 +110,24 @@ export function useWishlist() {
 // depend on saved data (cart, wishlist) skip a flash of "empty" before it loads.
 const noop = () => () => {};
 export const useHydrated = () => useSyncExternalStore(noop, () => true, () => false);
+
+/* ---------- Compare (up to COMPARE_MAX sarees side by side) ---------- */
+export const COMPARE_MAX = 3;
+const compareIds = () => read("vv_compare", NO_IDS).filter((id) => byId(id));
+
+export const compare = {
+  // Returns "added", "removed", or "full" when the list already holds COMPARE_MAX sarees.
+  toggle(id: string): "added" | "removed" | "full" {
+    const ids = compareIds();
+    if (ids.includes(id)) { write("vv_compare", ids.filter((x) => x !== id)); return "removed"; }
+    if (ids.length >= COMPARE_MAX) return "full";
+    write("vv_compare", ids.concat(id));
+    return "added";
+  },
+  remove(id: string) { write("vv_compare", compareIds().filter((x) => x !== id)); },
+  clear() { write("vv_compare", []); },
+};
+
+export function useCompare() {
+  return useStored("vv_compare", NO_IDS).filter((id) => byId(id));
+}

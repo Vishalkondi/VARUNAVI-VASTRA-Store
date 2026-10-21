@@ -7,6 +7,7 @@ import { ChatIcon, CheckIcon, LoomIcon } from "@/components/Icons";
 import { BuyBox, Gallery, RecentlyViewed, ShareButton } from "@/components/ProductParts";
 import { COLLECTIONS, PRODUCT_DEFAULTS, PRODUCTS, SITE, WEAVES } from "@/lib/data";
 import { asset, avgRating, byId, collectionProducts, collectionUrl, formatDate, hasPrice, priceText, productUrl, waLink } from "@/lib/utils";
+import { CompareButton } from "@/components/Compare";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -92,7 +93,7 @@ export default async function ProductPage({ params }: Props) {
               <li><CheckIcon /> Quality checked before it ships</li>
               <li><ChatIcon /> Exchange help within 48 hours of delivery</li>
             </ul>
-            <ShareButton p={p} pageUrl={pageUrl} />
+            <div className="pdp__tools"><ShareButton p={p} pageUrl={pageUrl} /><CompareButton p={p} variant="text" /></div>
             <table className="specs">
               <tbody>
                 <tr><th>Fabric</th><td>{d.fabric === PRODUCT_DEFAULTS.fabric ? WEAVES[p.weave].label : d.fabric}</td></tr>

@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Lora, Poppins, Yatra_One } from "next/font/google";
 import type { ReactNode } from "react";
 import { BackToTop } from "@/components/Extras";
+import { CompareTray } from "@/components/Compare";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import MobileNav from "@/components/MobileNav";
@@ -75,6 +76,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <Footer />
           <MobileNav />
           <BackToTop />
+          <CompareTray />
           <RevealOnScroll />
         </ToastProvider>
       </body>

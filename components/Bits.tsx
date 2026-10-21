@@ -10,6 +10,7 @@ import SareeArt, { artKind, type ArtKind } from "./SareeArt";
 import { QuickAdd } from "./Forms";
 import QuickViewButton from "./QuickView";
 import WishButton from "./WishButton";
+import { CompareButton } from "./Compare";
 
 export function Placeholder({ c1, c2, label }: { c1: string; c2: string; label?: string }) {
   return (
@@ -88,6 +89,7 @@ export function ProductCard({ p }: { p: Product }) {
       </div>
       <WishButton id={p.id} className="card__wish" label={"Save " + p.name + " to wishlist"} />
       <QuickViewButton p={p} />
+      <CompareButton p={p} />
       <div className="card__body">
         <h3 className="card__name"><Link href={productUrl(p)}>{p.name}</Link></h3>
         <div className="card__sub">{WEAVES[p.weave].label}</div>
