@@ -6,7 +6,7 @@
 import { usePathname, useSearchParams } from "next/navigation";
 import { Suspense, useEffect } from "react";
 
-const TARGETS = ".heading, .card, .tile, .occasion, .post-card, .spotlight > *, .split__text, .values > div, .founder, .trust__item, .band .wrap";
+const TARGETS = ".heading, .card, .tile, .occasion, .post-card, .spotlight > *, .split__text, .values > div, .founder, .trust__item, .band .wrap, .journey li, .weave-card, .story-intro > *, .story-visit";
 
 function Reveal() {
   const path = usePathname();
