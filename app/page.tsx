@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Heading, IMAGE_SIZES, Placeholder, PostCard, ProductCard, ProductImage, SitePhotoImg, TrustStrip } from "@/components/Bits";
+import { Heading, IMAGE_SIZES, Placeholder, PostCard, ProductCard, ProductImage, SitePhotoImg, Stars, TrustStrip } from "@/components/Bits";
 import { sistersPhoto } from "@/lib/site-photos";
-import { AddToCartButton, NewsletterForm } from "@/components/Forms";
+import { AddToCartButton, UpdatesForm } from "@/components/Forms";
+import { RecentlyViewed } from "@/components/ProductParts";
 import SareeArt, { artKind } from "@/components/SareeArt";
-import { OCCASION_TITLES, OCCASIONS, POSTS, PRODUCTS, SITE, WEAVES } from "@/lib/data";
-import { askPriceLink, byId, hasPrice, priceText, productUrl } from "@/lib/utils";
+import { LotusIcon } from "@/components/Icons";
+import { CountUp, RotatingWord, ScrollCue } from "@/components/HeroMotion";
+import { COLLECTIONS, OCCASION_TITLES, OCCASIONS, POSTS, PRODUCTS, SITE, WEAVES } from "@/lib/data";
+import { askPriceLink, byId, waLink, collectionProducts, collectionUrl, hasPrice, priceText, productUrl } from "@/lib/utils";
 
 export const metadata: Metadata = { title: { absolute: SITE.name + " · Handcrafted Cotton Sarees" } };
 
@@ -36,43 +39,51 @@ export default function Home() {
       return { name, dot: matches[0].c1, count: matches.length };
     })
     .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
-  const heroSaree =PRODUCTS.find((p) => p.bestseller && p.id !== spot.id) || spot;
+  const collections = COLLECTIONS.map((c) => ({ c, items: collectionProducts(c) })).filter((x) => x.items.length);
+  // Every real review on every saree, newest first.
+  const reviews = PRODUCTS.flatMap((p) => (p.reviews || []).map((r) => ({ r, p })))
+    .sort((a, b) => (b.r.date || "").localeCompare(a.r.date || ""));
+  const reviewAvg = reviews.length ? reviews.reduce((n, x) => n + x.r.rating, 0) / reviews.length : 0;
 
   return (
     <>
+      {/* Opening banner: the sisters behind Varunavi Vastra (photos/site/chaitanya-and-mansi.jpg) */}
       <section className="hero">
+        <div className="hero__media">
+          {sisters ? <SitePhotoImg photo={sisters} alt="Chaitanya and Mansi, the sisters behind Varunavi Vastra" sizes="(max-width: 820px) 100vw, 52vw" eager /> : <Placeholder c1="#8d9744" c2="#b4bd70" label="Photo: Chaitanya and Mansi" />}
+          <span className="hero__stamp"><LotusIcon />Handwoven with love</span>
+          <Link className="hero__peek" href="/our-story">Meet the founders <span aria-hidden="true">→</span></Link>
+        </div>
         <div className="hero__text">
-          <p className="eyebrow">{SITE.heroEyebrow}</p>
-          <h1>Six yards.<br />A thousand years<br />of hands.</h1>
-          <p>Handcrafted cotton sarees for the woman who values grace.</p>
+          <p className="eyebrow">Our story</p>
+          <h1>Two sisters, one love for <RotatingWord words={["tradition", "handloom", "cotton", "grace"]} /></h1>
+          <p className="hero__lead">Chaitanya and Mansi started Varunavi Vastra to bring their love for tradition to life, through handcrafted cotton sarees made for the woman who values grace.</p>
+          <p className="hero__sign">Chaitanya &amp; Mansi</p>
           <div className="btn-row">
             <Link className="btn btn--pink" href="/shop">Shop sarees</Link>
-            <Link className="btn btn--outline" href="/our-story">Our story</Link>
+            <Link className="btn btn--outline" href="/our-story">Read our story</Link>
           </div>
-          <ul className="hero__points">
-            <li>Handwoven cotton</li>
-            <li>Ships from Solapur</li>
-            <li>WhatsApp support</li>
-          </ul>
-        </div>
-        <div className="hero__art">
-          <div className="hero__arch">
-            {/* Replace with: <img src="/assets/images/hero.jpg" alt="Woman wearing a Varunavi cotton saree" /> */}
-            <ProductImage p={heroSaree} eager sizes={IMAGE_SIZES.large} />
-          </div>
-          <Link className="hero__card" href={productUrl(spot)}>
-            <span className="hero__card-img media"><ProductImage p={spot} sizes={IMAGE_SIZES.thumb} /></span>
-            <span>
-              <small>Saree of the week</small>
-              <strong>{spot.name}</strong>
-              <em>View saree →</em>
-            </span>
-          </Link>
+          <a className="hero__chat" href={waLink("Hello Varunavi Vastra, I would like help choosing a saree.")} target="_blank" rel="noopener">
+            or chat with us on WhatsApp <span aria-hidden="true">→</span>
+          </a>
+          <dl className="hero__stats">
+            <div><dt><CountUp value={PRODUCTS.length} /></dt><dd>Handpicked sarees</dd></div>
+            <div><dt><CountUp value={Object.keys(WEAVES).length} /></dt><dd>Signature weaves</dd></div>
+            {reviews.length
+              ? <div><dt><CountUp value={reviewAvg} decimals={1} /><span className="hero__star">★</span></dt><dd>From {reviews.length} {reviews.length === 1 ? "review" : "reviews"}</dd></div>
+              : <div><dt><CountUp value={100} suffix="%" /></dt><dd>Pure cotton</dd></div>}
+          </dl>
+          <nav className="hero__explore" aria-label="Explore sarees">
+            <span>Explore</span>
+            {(Object.keys(WEAVES) as (keyof typeof WEAVES)[]).map((k) => <Link href={"/shop?weave=" + k} key={k}>{WEAVES[k].short}</Link>)}
+            <Link href="/shop?new=1">New arrivals</Link>
+          </nav>
+          <ScrollCue target="#after-hero" />
         </div>
       </section>
 
       {/* Brand promises, drifting slowly across the page (still for visitors who prefer less motion) */}
-      <div className="ribbon" role="region" aria-label="Why shop with us">
+      <div className="ribbon" id="after-hero" role="region" aria-label="Why shop with us">
         <div className="ribbon__track">
           {[0, 1].map((copy) => (
             <ul className="ribbon__list" key={copy} aria-hidden={copy === 1 ? true : undefined}>
@@ -103,6 +114,27 @@ export default function Home() {
           <div className="view-all"><Link className="btn btn--outline" href="/shop">View all sarees</Link></div>
         </div>
       </section>
+
+      {collections.length ? (
+        <section className="section" style={{ paddingTop: 0 }}>
+          <div className="wrap">
+            <Heading title="Our collections" sub="Sarees grouped by the stories they tell" />
+            <div className="collections">
+              {collections.map(({ c, items }) => (
+                <Link className="collection-card" href={collectionUrl(c)} key={c.slug}>
+                  <span className="collection-card__media media"><ProductImage p={items[0]} sizes={IMAGE_SIZES.card} /></span>
+                  <span className="collection-card__text">
+                    <small>{items.length} {items.length === 1 ? "saree" : "sarees"}</small>
+                    <strong>{c.name}</strong>
+                    <span>{c.tagline}</span>
+                    <em>View collection →</em>
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
 
       <section className="section section--cream">
         <div className="wrap">
@@ -166,19 +198,6 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="split">
-        <div className="media">
-          {/* Shows photos/site/chaitanya-and-mansi.jpg once it has been added */}
-          {sisters ? <SitePhotoImg photo={sisters} alt="Chaitanya and Mansi, the sisters behind Varunavi Vastra" sizes="(max-width: 820px) 100vw, 50vw" /> : <Placeholder c1="#8d9744" c2="#b4bd70" label="Photo: Chaitanya and Mansi" />}
-        </div>
-        <div className="split__text">
-          <p className="eyebrow">Our story</p>
-          <h2>Two sisters, one love for tradition</h2>
-          <p>Chaitanya and Mansi started Varunavi Vastra to bring their love for tradition to life, through handcrafted cotton sarees made for the woman who values grace.</p>
-          <div><Link className="btn btn--olive" href="/our-story">Read our story</Link></div>
-        </div>
-      </section>
-
       <TrustStrip />
 
       <section className="band">
@@ -210,10 +229,31 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="newsletter">
+      {/* Customer reviews: appears only once real reviews have been added to sarees in data.ts */}
+      {reviews.length ? (
+        <section className="section section--cream">
+          <div className="wrap">
+            <Heading title="What our customers say" sub={"Rated " + reviewAvg.toFixed(1) + " out of 5 from " + reviews.length + (reviews.length === 1 ? " review" : " reviews")} />
+            <div className="testimonials">
+              {reviews.slice(0, 3).map(({ r, p }, i) => (
+                <figure className="testimonial" key={i}>
+                  <Stars rating={r.rating} />
+                  <blockquote>{r.text}</blockquote>
+                  <figcaption>{r.name}{r.city ? ", " + r.city : ""} · <Link href={productUrl(p)}>{p.name}</Link></figcaption>
+                </figure>
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
+
+      <RecentlyViewed />
+
+      <section className="newsletter" id="updates">
         <div className="wrap">
           <h2>Be the first to know about new weaves</h2>
-          <NewsletterForm />
+          <p className="newsletter__sub">Get new arrivals straight to your WhatsApp.</p>
+          <UpdatesForm />
         </div>
       </section>
     </>

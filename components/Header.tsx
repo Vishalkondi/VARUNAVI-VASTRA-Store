@@ -3,9 +3,9 @@
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef, useState } from "react";
-import { SITE, WEAVES } from "@/lib/data";
+import { COLLECTIONS, OCCASION_TITLES, OCCASIONS, SITE, WEAVES } from "@/lib/data";
 import { useCart, useStored, useWishlist, write } from "@/lib/store";
-import { priceText, productUrl, searchProducts, waLink } from "@/lib/utils";
+import { collectionProducts, collectionUrl, priceText, productUrl, searchProducts, waLink } from "@/lib/utils";
 import { IMAGE_SIZES, Logo, ProductImage } from "./Bits";
 import { BagIcon, CloseIcon, HeartIcon, MenuIcon, SearchIcon } from "./Icons";
 
@@ -13,20 +13,28 @@ import { BagIcon, CloseIcon, HeartIcon, MenuIcon, SearchIcon } from "./Icons";
 const POPULAR = ["Block print", "Zari", "Temple border", "Handloom", "Office", "Festive", "Red", "Blue"].filter((t) => searchProducts(t).length);
 const NO_SEARCHES: string[] = [];
 
-type NavItem ={ label: string; key: string; href: string; children?: { label: string; href: string }[] };
+type NavItem = { label: string; key: string; href: string; children?: { label: string; href: string }[] };
 
 const NAV: NavItem[] = [
   {
     label: "Shop", key: "shop", href: "/shop",
+    // On phones these appear as a simple list; on computers Shop opens the larger menu (MegaMenu below).
     children: [
       { label: "All Sarees", href: "/shop" },
       ...Object.entries(WEAVES).map(([k, w]) => ({ label: w.label, href: "/shop?weave=" + k })),
       { label: "New Arrivals", href: "/shop?new=1" },
       { label: "Bestsellers", href: "/shop?best=1" },
       { label: "Help me choose", href: "/finder" },
+      { label: "Gift Cards", href: "/gift-card" },
     ],
   },
-  { label: "Cotton Sarees", key: "cotton", href: "/shop" },
+  {
+    label: "Collections", key: "collections", href: "/collections",
+    children: [
+      ...COLLECTIONS.filter((c) => collectionProducts(c).length).map((c) => ({ label: c.name, href: collectionUrl(c) })),
+      { label: "All Collections", href: "/collections" },
+    ],
+  },
   { label: "New Arrivals", key: "new", href: "/shop?new=1" },
   { label: "Bestsellers", key: "best", href: "/shop?best=1" },
   { label: "Our Story", key: "story", href: "/our-story" },
@@ -35,13 +43,50 @@ const NAV: NavItem[] = [
   { label: "Contact", key: "contact", href: "/contact" },
 ];
 
+// The larger Shop menu on computers: four columns of links and two picture tiles.
+const MEGA_COLUMNS: { title: string; links: { label: string; href: string }[] }[] = [
+  { title: "Shop by weave", links: [{ label: "All Sarees", href: "/shop" }, ...Object.entries(WEAVES).map(([k, w]) => ({ label: w.label, href: "/shop?weave=" + k }))] },
+  { title: "Shop by occasion", links: OCCASIONS.map((o) => ({ label: OCCASION_TITLES[o].replace(" Sarees", ""), href: "/shop?occasion=" + encodeURIComponent(o) })) },
+  { title: "Collections", links: COLLECTIONS.filter((c) => collectionProducts(c).length).map((c) => ({ label: c.name, href: collectionUrl(c) })) },
+  { title: "More", links: [
+    { label: "New Arrivals", href: "/shop?new=1" }, { label: "Bestsellers", href: "/shop?best=1" }, { label: "Help me choose", href: "/finder" },
+    { label: "Gift Cards", href: "/gift-card" }, { label: "Catalogue (PDF)", href: "/catalogue" }, { label: "Custom Order", href: "/custom-order" },
+  ] },
+];
+const MEGA_TILES = COLLECTIONS.map((c) => ({ c, p: collectionProducts(c)[0] })).filter((t) => t.p).slice(0, 2);
+
+function MegaMenu() {
+  return (
+    <div className="mega">
+      <div className="mega__cols">
+        {MEGA_COLUMNS.map((col) => (
+          <div key={col.title}>
+            <h4>{col.title}</h4>
+            <ul>{col.links.map((l) => <li key={l.href + l.label}><Link href={l.href}>{l.label}</Link></li>)}</ul>
+          </div>
+        ))}
+      </div>
+      <div className="mega__tiles">
+        {MEGA_TILES.map(({ c, p }) => (
+          <Link className="mega__tile" href={collectionUrl(c)} key={c.slug}>
+            <span className="media"><ProductImage p={p} sizes={IMAGE_SIZES.thumb} /></span>
+            <strong>{c.name}</strong>
+            <small>{c.tagline}</small>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function activeKey(path: string, query: URLSearchParams | null) {
   if (path === "/shop") {
     if (query?.get("new") === "1") return "new";
     if (query?.get("best") === "1") return "best";
-    return "cotton";
+    return "shop";
   }
-  if (path.startsWith("/product/")) return "cotton";
+  if (path.startsWith("/product/") || path === "/finder" || path === "/gift-card" || path === "/catalogue") return "shop";
+  if (path.startsWith("/collections")) return "collections";
   if (path.startsWith("/journal")) return "journal";
   return ({ "/our-story": "story", "/custom-order": "custom", "/contact": "contact" } as Record<string, string>)[path] || "";
 }
@@ -127,9 +172,9 @@ function HeaderView({ query }: { query: URLSearchParams | null }) {
           <nav aria-label="Main">
             <ul className="nav">
               {NAV.map((n) => (
-                <li key={n.key}>
+                <li key={n.key} className={n.key === "shop" ? "nav__item--mega" : undefined}>
                   <Link className={"nav__link" + (n.key === active ? " is-active" : "")} href={n.href} aria-haspopup={n.children ? "true" : undefined}>{n.label}</Link>
-                  {n.children ? (
+                  {n.key === "shop" ? <MegaMenu /> : n.children ? (
                     <ul className="nav__drop">
                       {n.children.map((c) => <li key={c.href + c.label}><Link href={c.href}>{c.label}</Link></li>)}
                     </ul>
@@ -160,6 +205,8 @@ function HeaderView({ query }: { query: URLSearchParams | null }) {
               </li>
             ))}
             <li><Link href="/finder">Help me choose</Link></li>
+            <li><Link href="/catalogue">Catalogue (PDF)</Link></li>
+            <li><Link href="/track-order">Track your order</Link></li>
             <li><Link href="/wishlist">Wishlist</Link></li>
             <li><Link href="/faq">FAQ</Link></li>
           </ul>

@@ -1,4 +1,4 @@
-import { PRODUCTS, SITE, WEAVES, type Product } from "./data";
+import { PRODUCTS, SITE, WEAVES, type Collection, type Product } from "./data";
 
 export const rupees = (n: number) => "₹ " + Number(n).toLocaleString("en-IN");
 export const byId = (id: string | null | undefined) => PRODUCTS.find((p) => p.id === id);
@@ -29,4 +29,17 @@ export function searchProducts(q: string) {
 export const hasPrice = (p: Product) => p.price > 0;
 export const priceText = (p: Product) => (hasPrice(p) ? rupees(p.price) : "Ask for price");
 export const askPriceLink = (p: Product) =>
-  waLink("Hello Varunavi Vastra, could you please share the price of " + p.name + "?\n" + SITE.url + productUrl(p));
+  waLink("Hello Varunavi Vastra, could you please share the price of " + p.name + " (" + p.sku + ")?\n" + SITE.url + productUrl(p));
+
+// Sarees in a curated collection (see COLLECTIONS in data.ts), newest first.
+export function collectionProducts(c: Collection) {
+  const m = c.match;
+  return PRODUCTS.filter((p) =>
+    (!m.weaveType || p.weaveType.toLowerCase().includes(m.weaveType.toLowerCase())) &&
+    (!m.weave || p.weave === m.weave) &&
+    (!m.occasion || p.occasion === m.occasion) &&
+    (!m.colour || p.colour === m.colour) &&
+    (!m.ids || m.ids.includes(p.id)),
+  ).sort((a, b) => Number(!!a.soldOut) - Number(!!b.soldOut) || b.added - a.added);
+}
+export const collectionUrl = (c: Collection) => "/collections/" + c.slug;

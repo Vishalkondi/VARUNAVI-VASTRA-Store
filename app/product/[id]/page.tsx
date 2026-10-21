@@ -5,8 +5,8 @@ import { Crumbs, Heading, ProductCard, Stars, TrustStrip } from "@/components/Bi
 import { DeliveryCheck } from "@/components/Extras";
 import { ChatIcon, CheckIcon, LoomIcon } from "@/components/Icons";
 import { BuyBox, Gallery, RecentlyViewed, ShareButton } from "@/components/ProductParts";
-import { PRODUCT_DEFAULTS, PRODUCTS, SITE, WEAVES } from "@/lib/data";
-import { asset, avgRating, byId, formatDate, hasPrice, priceText, productUrl, waLink } from "@/lib/utils";
+import { COLLECTIONS, PRODUCT_DEFAULTS, PRODUCTS, SITE, WEAVES } from "@/lib/data";
+import { asset, avgRating, byId, collectionProducts, collectionUrl, formatDate, hasPrice, priceText, productUrl, waLink } from "@/lib/utils";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -35,6 +35,7 @@ export default async function ProductPage({ params }: Props) {
   const plural = (n: number) => n + " review" + (n === 1 ? "" : "s");
 
   const siblings = p.group ? PRODUCTS.filter((x) => x.group === p.group) : [];
+  const inCollections = COLLECTIONS.filter((c) => collectionProducts(c).some((x) => x.id === p.id));
   // You may also like: same weave first, then the rest
   const related = PRODUCTS.filter((x) => x.id !== p.id)
     .sort((a, b) => Number(b.weave === p.weave) - Number(a.weave === p.weave) || b.added - a.added)
@@ -43,7 +44,7 @@ export default async function ProductPage({ params }: Props) {
   // Search engines: product structured data
   const ld = {
     "@context": "https://schema.org", "@type": "Product", name: p.name, description: p.description,
-    brand: { "@type": "Brand", name: SITE.name }, sku: p.id,
+    brand: { "@type": "Brand", name: SITE.name }, sku: p.sku,
     image: p.images.map((src) => SITE.url + asset(src)),
     // Price details only once the saree has a price
     ...(hasPrice(p) ? { offers: {
@@ -63,10 +64,17 @@ export default async function ProductPage({ params }: Props) {
           <div className="pdp__info">
             {p.isNew ? <p className="eyebrow">New arrival</p> : null}
             <h1>{p.name}</h1>
-            <div className="pdp__sub">{WEAVES[p.weave].label} saree</div>
+            <div className="pdp__sub">{WEAVES[p.weave].label} saree <span className="pdp__sku">· Code {p.sku}</span></div>
             {reviews.length ? <a className="pdp__rating" href="#reviews"><Stars rating={rating} /> {plural(reviews.length)}</a> : null}
             <span className={"price pdp__price" + (hasPrice(p) ? "" : " price--ask")}>{priceText(p)}</span>
             <p className="pdp__desc">{p.description}</p>
+            {inCollections.length ? (
+              <p className="pdp__collections">
+                Part of {inCollections.map((c, i) => (
+                  <span key={c.slug}>{i ? ", " : ""}<Link href={collectionUrl(c)}>{c.name}</Link></span>
+                ))}
+              </p>
+            ) : null}
             {siblings.length > 1 ? (
               <div className="swatches">
                 <div className="swatches__label">COLOUR: {p.colourName.toUpperCase()}</div>

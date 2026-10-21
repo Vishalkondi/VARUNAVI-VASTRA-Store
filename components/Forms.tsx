@@ -20,22 +20,34 @@ export function WhatsAppForm({ intro, children }: { intro: string; children: Rea
   return <form className="form" onSubmit={onSubmit}>{children}</form>;
 }
 
-export function NewsletterForm() {
+// Sign-up for new-arrival updates. Sends a WhatsApp message asking to be added to the updates list,
+// so every sign-up reaches the shop (an email box would need a mailing service to store addresses).
+const INTERESTS = ["All new arrivals", "Handloom cotton", "Festive zari", "Block prints"];
+
+export function UpdatesForm() {
   const [msg, setMsg] = useState("");
   return (
     <>
       <form
-        className="inline-form"
+        className="updates-form"
         onSubmit={(e) => {
           e.preventDefault();
-          // TODO: connect to an email service (e.g. Mailchimp, Brevo or Formspree) to actually save sign-ups.
-          setMsg("Thank you! We will let you know when new weaves arrive.");
-          e.currentTarget.reset();
+          const f = new FormData(e.currentTarget);
+          const name = String(f.get("name") || "").trim();
+          window.open(waLink(
+            "Hello Varunavi Vastra, please add me to your new arrivals updates on WhatsApp." +
+            (name ? "\nName: " + name : "") + "\nInterested in: " + f.get("interest"),
+          ), "_blank", "noopener");
+          setMsg("Your message is ready in WhatsApp. Tap Send and we will add you.");
         }}
       >
-        <label className="sr-only" htmlFor="nl-email">Email address</label>
-        <input id="nl-email" type="email" name="email" placeholder="Your email address" required autoComplete="email" />
-        <button className="btn btn--pink" type="submit">Subscribe</button>
+        <label className="sr-only" htmlFor="up-name">Your name</label>
+        <input id="up-name" name="name" placeholder="Your name (optional)" autoComplete="given-name" />
+        <label className="sr-only" htmlFor="up-interest">Interested in</label>
+        <select id="up-interest" name="interest" className="select">
+          {INTERESTS.map((i) => <option key={i}>{i}</option>)}
+        </select>
+        <button className="btn btn--whatsapp" type="submit">Get updates on WhatsApp</button>
       </form>
       <p className="form-msg" role="status">{msg}</p>
     </>

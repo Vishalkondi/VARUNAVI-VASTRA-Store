@@ -26,7 +26,10 @@ export default function Footer() {
                 <li><Link href="/shop">Cotton Sarees</Link></li>
                 <li><Link href="/shop?new=1">New Arrivals</Link></li>
                 <li><Link href="/shop?best=1">Bestsellers</Link></li>
+                <li><Link href="/collections">Collections</Link></li>
                 <li><Link href="/finder">Help Me Choose</Link></li>
+                <li><Link href="/gift-card">Gift Cards</Link></li>
+                <li><Link href="/catalogue">Catalogue (PDF)</Link></li>
                 <li><Link href="/custom-order">Custom Order</Link></li>
                 <li><Link href="/wishlist">Wishlist</Link></li>
               </ul>
@@ -34,6 +37,7 @@ export default function Footer() {
             <div>
               <h4>Help</h4>
               <ul>
+                <li><Link href="/track-order">Track Your Order</Link></li>
                 <li><Link href="/shipping">Shipping &amp; Delivery</Link></li>
                 <li><Link href="/refund">Cancellation &amp; Refund</Link></li>
                 <li><Link href="/faq">FAQ</Link></li>
@@ -53,6 +57,7 @@ export default function Footer() {
           </div>
           <div className="footer__bottom">
             <span>© {new Date().getFullYear()} {SITE.name}. All rights reserved.</span>
+            <span className="footer__pay">We accept <b>UPI</b> <b>Bank transfer</b></span>
             <span><Link href="/privacy">Privacy Policy</Link> · <Link href="/terms">Terms &amp; Conditions</Link></span>
           </div>
         </div>

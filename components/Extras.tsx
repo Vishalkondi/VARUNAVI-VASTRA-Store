@@ -147,6 +147,26 @@ export function WishlistActions({ list }: { list: Product[] }) {
   );
 }
 
+/* ---------- Catalogue buttons ---------- */
+
+export function CatalogueActions({ url }: { url: string }) {
+  async function share() {
+    const text = SITE.name + " catalogue of handcrafted cotton sarees:\n" + url;
+    if (navigator.share) {
+      try { await navigator.share({ title: SITE.name + " catalogue", text, url }); } catch { /* cancelled */ }
+    } else {
+      window.open("https://wa.me/?text=" + encodeURIComponent(text), "_blank", "noopener");
+    }
+  }
+  return (
+    <div className="catalogue__actions">
+      {/* The browser's print window has "Save as PDF" as a destination. */}
+      <button className="btn btn--pink" type="button" onClick={() => window.print()}>Save as PDF</button>
+      <button className="btn btn--whatsapp" type="button" onClick={share}>Share on WhatsApp</button>
+    </div>
+  );
+}
+
 /* ---------- Back to top ---------- */
 
 export function BackToTop() {

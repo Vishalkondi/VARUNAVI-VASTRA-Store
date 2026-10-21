@@ -35,7 +35,7 @@ export default function CartView() {
 
   function orderMessage(payLine: string) {
     const f = new FormData(checkout.current!);
-    const list = items.map((i, n) => (n + 1) + ". " + byId(i.id)!.name + (i.fp ? " + fall and picot" : "") + " x " + i.qty + " = " + rupees(linePrice(i) * i.qty));
+    const list = items.map((i, n) => (n + 1) + ". " + byId(i.id)!.name + " (" + byId(i.id)!.sku + ")" + (i.fp ? " + fall and picot" : "") + " x " + i.qty + " = " + rupees(linePrice(i) * i.qty));
     return "Hello Varunavi Vastra, I would like to place an order:\n\n" + list.join("\n") +
       "\n\nSubtotal: " + rupees(subtotal) +
       (discount && coupon ? "\nDiscount (" + coupon.code + "): - " + rupees(discount) : "") +

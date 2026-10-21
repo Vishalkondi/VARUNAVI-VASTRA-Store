@@ -104,7 +104,7 @@ export function BuyBox({ p, pageUrl }: { p: Product; pageUrl: string }) {
     );
   }
 
-  const waText = "Hello Varunavi Vastra, I would like to order or ask about:\n" + p.name + " (" + rupees(p.price) + ")\n" + pageUrl;
+  const waText = "Hello Varunavi Vastra, I would like to order or ask about:\n" + p.name + " (" + p.sku + ", " + rupees(p.price) + ")\n" + pageUrl;
   return (
     <>
       {SITE.fallPicotPrice > 0 ? (
@@ -147,11 +147,12 @@ export function ShareButton({ p, pageUrl }: { p: Product; pageUrl: string }) {
 }
 
 // Shows sarees viewed before this one, then records this visit.
-export function RecentlyViewed({ id }: { id: string }) {
+// Without an `id` (the homepage), it only shows the shopper's recent sarees.
+export function RecentlyViewed({ id }: { id?: string }) {
   const [recent, setRecent] = useState<string[]>([]);
   useEffect(() => {
     const prev = read<string[]>("vv_recent", []).filter((x) => x !== id && byId(x));
-    write("vv_recent", [id, ...prev].slice(0, 8));
+    if (id) write("vv_recent", [id, ...prev].slice(0, 8));
     setRecent(prev.slice(0, 4));
   }, [id]);
   if (!recent.length) return null;

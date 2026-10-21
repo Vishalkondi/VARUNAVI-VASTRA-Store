@@ -30,7 +30,7 @@ export const SITE = {
   delivery: { dispatch: [1, 2], local: [1, 2], state: [2, 4], india: [3, 7] } as Record<string, [number, number]>,
   instagram: "https://www.instagram.com/",  // [replace with your Instagram link]
   facebook: "https://www.facebook.com/",    // [replace with your Facebook link]
-  logoImage: "",                        // e.g. "assets/images/logo.png" to use your real logo
+  logoImage: "assets/images/logo.png",   // your real logo (set to "" to fall back to the drawn lotus + wordmark)
   heroEyebrow: "The Autumn Weave Edit",
   sareeOfTheWeek: "royal-blue-zari-polka",
   shippingNote: "Free shipping across India on all orders.", // [confirm]
@@ -72,10 +72,46 @@ export const OCCASION_SUBS: Record<string, string> = {
   "Wedding guest": "Statement sarees for weddings and receptions",
 };
 
-export type Review = { name: string; city?: string; rating: number; text: string; date?: string };
+// Curated collections ("edits"), each with its own page at /collections/<slug>.
+// A saree joins a collection when it matches ALL the rules given: `weaveType` (part of the weave name,
+// any case), `weave`, `occasion`, `colour`, or a fixed list of `ids`. New sarees join automatically.
+// Names and descriptions are suggestions: rename them freely, but keep each `slug` once shared.
+export type Collection = {
+  slug: string;
+  name: string;
+  tagline: string;
+  description: string;
+  match: { weaveType?: string; weave?: WeaveKey; occasion?: string; colour?: string; ids?: string[] };
+};
+
+export const COLLECTIONS: Collection[] = [
+  {
+    slug: "temple-edit", name: "The Temple Edit", tagline: "Borders inspired by temple spires",
+    description: "Cotton sarees with the classic temple border: rows of woven spires framing the drape, as worn for generations to poojas and family gatherings.",
+    match: { weaveType: "temple" },
+  },
+  {
+    slug: "zari-and-gold", name: "Zari & Gold", tagline: "A touch of gold for festive days",
+    description: "Zari buttis, polka dots and borders woven in gold on soft cotton. Light enough to wear all day, rich enough for the festival season.",
+    match: { weaveType: "zari" },
+  },
+  {
+    slug: "block-print-stories", name: "Block Print Stories", tagline: "Printed by hand, one block at a time",
+    description: "Florals and paisleys printed by hand with carved wooden blocks. Every saree carries the small variations of the printer's hand.",
+    match: { weave: "print" },
+  },
+  {
+    slug: "desk-to-dinner", name: "Desk to Dinner", tagline: "Neat, easy drapes for the working day",
+    description: "Breathable cotton sarees in calm colours that look crisp at the office and stay comfortable into the evening.",
+    match: { occasion: "Office" },
+  },
+];
+
+export type Review ={ name: string; city?: string; rating: number; text: string; date?: string };
 
 export type Product = {
   id: string;
+  sku: string; // product code shown to customers; never change it once a saree is listed
   name: string;
   weave: WeaveKey;
   weaveType: string;
@@ -101,6 +137,7 @@ export type Product = {
   returns?: string;
 };
 
+// `sku`: the saree's product code. Give a new saree the next number (VV-016, VV-017...) and never reuse one.
 // `added`: higher number = newer (used for "Sort: Newest").
 // `group`: sarees in the same group appear as colour swatches on each other's page.
 // Optional flags: `bestseller: true`, `soldOut: true`.
@@ -109,105 +146,105 @@ export type Product = {
 export const PRODUCTS: Product[] = [
   // price: 0 means not set yet. The saree shows "Ask price on WhatsApp" instead of a price and Add to cart.
   {
-    id: "maroon-navy-temple-border", name: "Maroon Temple Border", weave: "handloom", weaveType: "Temple border",
+    id: "maroon-navy-temple-border", sku: "VV-001", name: "Maroon Temple Border", weave: "handloom", weaveType: "Temple border",
     colour: "Red", colourName: "Wine maroon with navy", occasion: "Everyday", price: 0,
     isNew: false, added: 10, group: "temple", c1: "#7a2c3c", c2: "#1f2440",
     description: "Wine maroon cotton with small navy buttis and a navy temple border finished in antique gold zari.",
     images: ["assets/images/products/maroon-navy-temple-border.jpg"],
   },
   {
-    id: "sand-rust-border", name: "Sand and Rust Border", weave: "handloom", weaveType: "Woven border",
+    id: "sand-rust-border", sku: "VV-002", name: "Sand and Rust Border", weave: "handloom", weaveType: "Woven border",
     colour: "Beige", colourName: "Sand with rust", occasion: "Office", price: 0,
     isNew: false, added: 9, group: "border", c1: "#c9a77c", c2: "#8e2f1d",
     description: "A calm sand-coloured body with a deep rust border woven in rows of traditional motifs.",
     images: ["assets/images/products/sand-rust-border.jpg"],
   },
   {
-    id: "red-green-temple-border", name: "Red and Green Temple Border", bestseller: true, weave: "handloom", weaveType: "Temple border",
+    id: "red-green-temple-border", sku: "VV-003", name: "Red and Green Temple Border", bestseller: true, weave: "handloom", weaveType: "Temple border",
     colour: "Red", colourName: "Red with bottle green", occasion: "Festive", price: 0,
     isNew: false, added: 8, group: "temple", c1: "#b3181d", c2: "#1d5233",
     description: "Classic red cotton with a bottle green temple border and a rich gold zari band, made for festivals and poojas.",
     images: ["assets/images/products/red-green-temple-border.jpg"],
   },
   {
-    id: "peach-maroon-border", name: "Peach and Maroon Border", weave: "handloom", weaveType: "Woven border",
+    id: "peach-maroon-border", sku: "VV-004", name: "Peach and Maroon Border", weave: "handloom", weaveType: "Woven border",
     colour: "Pink", colourName: "Dusty peach with maroon", occasion: "Everyday", price: 0,
     isNew: false, added: 7, group: "border", c1: "#d6a08c", c2: "#8c1a1d",
     description: "Soft dusty peach cotton with tiny red buttis and a maroon border lined with bright orange stripes.",
     images: ["assets/images/products/peach-maroon-border.jpg"],
   },
   {
-    id: "royal-blue-zari-polka", name: "Royal Blue Zari Polka", bestseller: true, weave: "festive", weaveType: "Zari polka",
+    id: "royal-blue-zari-polka", sku: "VV-005", name: "Royal Blue Zari Polka", bestseller: true, weave: "festive", weaveType: "Zari polka",
     colour: "Blue", colourName: "Royal blue with wine", occasion: "Wedding guest", price: 0,
     isNew: false, added: 6, group: "zari", c1: "#2a2c9c", c2: "#6e1745",
     description: "Royal blue with large gold zari polka buttis and a wine border edged in zari, finished with tassels.",
     images: ["assets/images/products/royal-blue-zari-polka.jpg"],
   },
   {
-    id: "mehendi-maroon-border", name: "Mehendi and Maroon Border", weave: "handloom", weaveType: "Woven border",
+    id: "mehendi-maroon-border", sku: "VV-006", name: "Mehendi and Maroon Border", weave: "handloom", weaveType: "Woven border",
     colour: "Green", colourName: "Mehendi green with maroon", occasion: "Festive", price: 0,
     isNew: false, added: 5, group: "border", c1: "#7c8a27", c2: "#a3141f",
     description: "Mehendi green cotton paired with a wide maroon border woven with fine gold motifs.",
     images: ["assets/images/products/mehendi-maroon-border.jpg"],
   },
   {
-    id: "bottle-green-zari-butti", name: "Bottle Green Zari Butti", weave: "festive", weaveType: "Zari butti",
+    id: "bottle-green-zari-butti", sku: "VV-007", name: "Bottle Green Zari Butti", weave: "festive", weaveType: "Zari butti",
     colour: "Green", colourName: "Bottle green", occasion: "Festive", price: 0,
     isNew: false, added: 4, group: "zari", c1: "#1f6b2a", c2: "#c9b046",
     description: "Deep bottle green with small gold buttis and a woven gold zari border, finished with tassels.",
     images: ["assets/images/products/bottle-green-zari-butti.jpg"],
   },
   {
-    id: "black-rani-leaf-butti", name: "Black and Rani Leaf Butti", bestseller: true, weave: "festive", weaveType: "Zari leaf butti",
+    id: "black-rani-leaf-butti", sku: "VV-008", name: "Black and Rani Leaf Butti", bestseller: true, weave: "festive", weaveType: "Zari leaf butti",
     colour: "Black", colourName: "Black with rani pink", occasion: "Wedding guest", price: 0,
     isNew: false, added: 3, group: "leaf", c1: "#18181a", c2: "#a3195b",
     description: "Black cotton with large gold zari leaf buttis, a gold band and a rani pink border with tassels.",
     images: ["assets/images/products/black-rani-leaf-butti.jpg"],
   },
   {
-    id: "black-red-leaf-butti", name: "Black and Red Leaf Butti", weave: "festive", weaveType: "Zari leaf butti",
+    id: "black-red-leaf-butti", sku: "VV-009", name: "Black and Red Leaf Butti", weave: "festive", weaveType: "Zari leaf butti",
     colour: "Black", colourName: "Black with red", occasion: "Festive", price: 0,
     isNew: false, added: 2, group: "leaf", c1: "#141416", c2: "#9c1c22",
     description: "Black with rows of gold zari leaf buttis, a broad gold border and a red edge.",
     images: ["assets/images/products/black-red-leaf-butti.jpg"],
   },
   {
-    id: "black-gold-zari-border", name: "Black and Gold Zari Border", weave: "festive", weaveType: "Zari butti",
+    id: "black-gold-zari-border", sku: "VV-010", name: "Black and Gold Zari Border", weave: "festive", weaveType: "Zari butti",
     colour: "Black", colourName: "Black with gold", occasion: "Office", price: 0,
     isNew: false, added: 1, group: "zari", c1: "#111113", c2: "#b89a3a",
     description: "Elegant black with small gold buttis and a woven gold zari border, finished with tassels.",
     images: ["assets/images/products/black-gold-zari-border.jpg"],
   },
   {
-    id: "rust-floral-block-print", name: "Rust Floral Block Print", bestseller: true, weave: "print", weaveType: "Block print",
+    id: "rust-floral-block-print", sku: "VV-011", name: "Rust Floral Block Print", bestseller: true, weave: "print", weaveType: "Block print",
     colour: "Red", colourName: "Rust with ivory", occasion: "Everyday", price: 0,
     isNew: true, added: 15, group: "print", c1: "#a8432c", c2: "#e9e0cf",
     description: "Hand block-printed ivory florals on rust, with a black printed border and a silver-toned edge.",
     images: ["assets/images/products/rust-floral-block-print.jpg"],
   },
   {
-    id: "beige-indigo-block-print", name: "Beige and Indigo Block Print", weave: "print", weaveType: "Block print",
+    id: "beige-indigo-block-print", sku: "VV-012", name: "Beige and Indigo Block Print", weave: "print", weaveType: "Block print",
     colour: "Beige", colourName: "Beige with indigo", occasion: "Office", price: 0,
     isNew: true, added: 14, group: "print", c1: "#cfc6a4", c2: "#27325c",
     description: "Small indigo flower buttas block-printed on beige, with a striped black border and a silver-toned edge.",
     images: ["assets/images/products/beige-indigo-block-print.jpg"],
   },
   {
-    id: "blush-floral-block-print", name: "Blush Floral Block Print", weave: "print", weaveType: "Block print",
+    id: "blush-floral-block-print", sku: "VV-013", name: "Blush Floral Block Print", weave: "print", weaveType: "Block print",
     colour: "Pink", colourName: "Blush with pink and green", occasion: "Everyday", price: 0,
     isNew: true, added: 13, group: "print", c1: "#f4dfdc", c2: "#cf4f6e",
     description: "Pink and green flower buttas block-printed on soft blush, with a floral pink border and a silver-toned edge.",
     images: ["assets/images/products/blush-floral-block-print.jpg"],
   },
   {
-    id: "teal-paisley-block-print", name: "Teal Paisley Block Print", weave: "print", weaveType: "Block print",
+    id: "teal-paisley-block-print", sku: "VV-014", name: "Teal Paisley Block Print", weave: "print", weaveType: "Block print",
     colour: "Green", colourName: "Teal with ivory", occasion: "Office", price: 0,
     isNew: true, added: 12, group: "print", c1: "#2f6e5c", c2: "#e8e2d4",
     description: "Ivory paisleys and flowers block-printed on teal, with a black printed border and a silver-toned edge.",
     images: ["assets/images/products/teal-paisley-block-print.jpg"],
   },
   {
-    id: "mustard-floral-block-print", name: "Mustard Floral Block Print", weave: "print", weaveType: "Block print",
+    id: "mustard-floral-block-print", sku: "VV-015", name: "Mustard Floral Block Print", weave: "print", weaveType: "Block print",
     colour: "Yellow", colourName: "Mustard with ivory", occasion: "Everyday", price: 0,
     isNew: true, added: 11, group: "print", c1: "#e0b021", c2: "#2f4fa8",
     description: "A sunny mustard floral vine block print with a black flower border, blue edge and silver-toned finish.",

@@ -47,9 +47,9 @@ export function ProductImage({ p, index = 0, eager = false, sizes = IMAGE_SIZES.
 }
 
 // A site photo (see lib/site-photos.ts) with a small version for phones.
-export function SitePhotoImg({ photo, alt, sizes = IMAGE_SIZES.large }: { photo: { src: string; small: string }; alt: string; sizes?: string }) {
+export function SitePhotoImg({ photo, alt, sizes = IMAGE_SIZES.large, eager }: { photo: { src: string; small: string }; alt: string; sizes?: string; eager?: boolean }) {
   // eslint-disable-next-line @next/next/no-img-element
-  return <img src={photo.src} srcSet={`${photo.small} 600w, ${photo.src} 1200w`} sizes={sizes} alt={alt} width={1200} height={1600} loading="lazy" decoding="async" />;
+  return <img src={photo.src} srcSet={`${photo.small} 600w, ${photo.src} 1200w`} sizes={sizes} alt={alt} width={1200} height={1600} loading={eager ? "eager" : "lazy"} fetchPriority={eager ? "high" : undefined} decoding="async" />;
 }
 
 export function Logo() {
