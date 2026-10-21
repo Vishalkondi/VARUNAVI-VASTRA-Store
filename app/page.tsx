@@ -7,7 +7,7 @@ import { RecentlyViewed } from "@/components/ProductParts";
 import SareeArt, { artKind } from "@/components/SareeArt";
 import { LotusIcon } from "@/components/Icons";
 import { CountUp, Hotspot, PhotoDrift, RotatingWord, ScrollCue } from "@/components/HeroMotion";
-import { OpenStatus } from "@/components/Extras";
+import { OpenStatus, ShipsBy } from "@/components/Extras";
 import { COLLECTIONS, OCCASION_TITLES, OCCASIONS, POSTS, PRODUCTS, SITE, WEAVES } from "@/lib/data";
 import { askPriceLink, byId, waLink, collectionProducts, collectionUrl, hasPrice, priceText, productUrl } from "@/lib/utils";
 
@@ -81,7 +81,7 @@ export default function Home() {
           <a className="hero__chat" href={waLink("Hello Varunavi Vastra, I would like help choosing a saree.")} target="_blank" rel="noopener">
             or chat with us on WhatsApp <span aria-hidden="true">→</span>
           </a>
-          <div className="hero__status"><OpenStatus /></div>
+          <div className="hero__status"><OpenStatus /><ShipsBy /></div>
           <dl className="hero__stats">
             <div><dt><CountUp value={PRODUCTS.length} /></dt><dd>Handpicked sarees</dd></div>
             <div><dt><CountUp value={Object.keys(WEAVES).length} /></dt><dd>Signature weaves</dd></div>
@@ -91,8 +91,8 @@ export default function Home() {
           </dl>
           <nav className="hero__explore" aria-label="Explore sarees">
             <span>Explore</span>
+            <Link className="hero__finder" href="/finder">✦ Help me choose</Link>
             {(Object.keys(WEAVES) as (keyof typeof WEAVES)[]).map((k) => <Link href={"/shop?weave=" + k} key={k}>{WEAVES[k].short}</Link>)}
-            <Link href="/shop?new=1">New arrivals</Link>
           </nav>
           <ScrollCue target="#after-hero" />
         </div>

@@ -288,6 +288,23 @@ p { margin: 0 0 1em; }
 .hero__status .open-status.is-open { background: rgba(37, 211, 102, .1); }
 .hero__status .open-status.is-open .open-status__dot { animation: hot-pulse-dot 1.8s ease-in-out infinite; }
 @keyframes hot-pulse-dot { 50% { opacity: .35; } }
+/* Status row: open / closed sign and the "ships by" date side by side */
+.hero__status { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 10px; }
+.hero__status .open-status { margin-top: 0; }
+.ships-by {
+  display: inline-flex; align-items: center; gap: 7px; margin: 0; padding: 5px 12px; border-radius: 999px;
+  font-size: 11.5px; color: var(--olive-deep); background: rgba(108, 118, 50, .1);
+}
+.ships-by strong { font-weight: 600; }
+/* Saree finder chip stands out from the weave chips */
+.hero__explore a.hero__finder { background: var(--pink); border-color: var(--pink); color: #fff; }
+.hero__explore a.hero__finder:hover { background: var(--pink-dark); border-color: var(--pink-dark); }
+/* Faint woven texture on the text side, like the weft of a cotton saree */
+.hero__text {
+  background-image:
+    repeating-linear-gradient(0deg, rgba(108, 118, 50, .035) 0 1px, transparent 1px 6px),
+    repeating-linear-gradient(90deg, rgba(108, 118, 50, .035) 0 1px, transparent 1px 6px);
+}
 @keyframes hero-rise { from { opacity: 0; transform: translateY(16px); } }
 @keyframes hero-zoom { from { transform: scale(1.06); } }
 @media (prefers-reduced-motion: reduce) { .hero__text > *, .hero__media > img { animation: none; } }
@@ -952,7 +969,7 @@ svg.art { display: block; width: 100%; height: 100%; background: none; }
   .hero__text .btn-row { justify-content: center; }
   .hero__points { justify-content: center; margin-top: 22px; }
   .hero__chat { align-self: center; }
-  .hero__status { align-self: center; }
+  .hero__status { align-self: center; justify-content: center; }
   .hero__stats { justify-content: center; }
   .hero__stats > div { padding: 0 16px; }
   .hero__stats dt { font-size: 24px; }

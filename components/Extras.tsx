@@ -187,3 +187,11 @@ export function BackToTop() {
     </button>
   );
 }
+
+/* ---------- "Ships by" promise for the homepage banner ---------- */
+
+export function ShipsBy() {
+  const hydrated = useHydrated();
+  if (!hydrated) return null; // depends on today's date, so only shown in the browser
+  return <p className="ships-by"><span aria-hidden="true">⟶</span>Order today, ships by <strong>{shortDate(addWorkingDays(new Date(), SITE.delivery.dispatch[1]))}</strong></p>;
+}
