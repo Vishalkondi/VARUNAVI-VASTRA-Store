@@ -255,6 +255,39 @@ p { margin: 0 0 1em; }
 @keyframes hero-drip { to { top: 100%; } }
 @media (max-height: 820px), (max-width: 820px) { .hero__scroll { display: none; } }
 @media (prefers-reduced-motion: reduce) { .hero__scroll i::after { animation: none; top: 30%; } }
+/* Shop the look pins */
+.hotspot { position: absolute; z-index: 2; transform: translate(-50%, -50%); }
+.hotspot__dot {
+  display: block; width: 26px; height: 26px; border-radius: 50%; background: rgba(255, 255, 255, .9); position: relative;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .3); transition: transform .2s;
+}
+.hotspot__dot::before { content: ""; position: absolute; inset: 8px; border-radius: 50%; background: var(--pink); }
+.hotspot__dot::after { content: ""; position: absolute; inset: -6px; border-radius: 50%; border: 2px solid rgba(255, 255, 255, .8); animation: hot-pulse 2s ease-out infinite; }
+.hotspot:hover .hotspot__dot, .hotspot.is-open .hotspot__dot { transform: scale(1.12); }
+.hotspot__card {
+  position: absolute; left: 38px; top: 50%; display: flex; align-items: center; gap: 10px; width: max-content; max-width: 240px;
+  background: #fff; padding: 8px 14px 8px 8px; border-radius: 4px; box-shadow: 0 16px 36px -14px rgba(45, 49, 28, .55);
+  opacity: 0; visibility: hidden; transform: translate(-6px, -50%); transition: opacity .2s, transform .2s, visibility .2s;
+}
+.hotspot--left .hotspot__card { left: auto; right: 38px; transform: translate(6px, -50%); }
+.hotspot:hover .hotspot__card, .hotspot:focus-within .hotspot__card, .hotspot.is-open .hotspot__card { opacity: 1; visibility: visible; transform: translate(0, -50%); }
+.hotspot__img { width: 44px; height: 54px; flex: none; border-radius: 2px; overflow: hidden; }
+.hotspot__img img, .hotspot__img svg { width: 100%; height: 100%; object-fit: cover; }
+.hotspot__card small { display: block; font-size: 9.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--pink); }
+.hotspot__card strong { display: block; font-family: var(--serif); font-weight: 400; font-size: 15px; line-height: 1.25; margin: 2px 0; }
+.hotspot__card em { font-style: normal; font-size: 11.5px; font-weight: 500; color: var(--olive-deep); }
+@keyframes hot-pulse { from { transform: scale(.7); opacity: 1; } to { transform: scale(1.5); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .hotspot__dot::after { animation: none; opacity: .6; } }
+.hero__media > img { will-change: transform; }
+/* Live open / closed sign under the WhatsApp link */
+.hero__status:empty { display: none; }
+.hero__status .open-status {
+  display: inline-flex; margin-top: 10px; padding: 5px 12px; border-radius: 999px; font-size: 11.5px;
+  background: rgba(209, 76, 133, .08);
+}
+.hero__status .open-status.is-open { background: rgba(37, 211, 102, .1); }
+.hero__status .open-status.is-open .open-status__dot { animation: hot-pulse-dot 1.8s ease-in-out infinite; }
+@keyframes hot-pulse-dot { 50% { opacity: .35; } }
 @keyframes hero-rise { from { opacity: 0; transform: translateY(16px); } }
 @keyframes hero-zoom { from { transform: scale(1.06); } }
 @media (prefers-reduced-motion: reduce) { .hero__text > *, .hero__media > img { animation: none; } }
@@ -919,6 +952,7 @@ svg.art { display: block; width: 100%; height: 100%; background: none; }
   .hero__text .btn-row { justify-content: center; }
   .hero__points { justify-content: center; margin-top: 22px; }
   .hero__chat { align-self: center; }
+  .hero__status { align-self: center; }
   .hero__stats { justify-content: center; }
   .hero__stats > div { padding: 0 16px; }
   .hero__stats dt { font-size: 24px; }

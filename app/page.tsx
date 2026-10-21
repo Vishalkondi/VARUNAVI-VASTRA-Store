@@ -6,7 +6,8 @@ import { AddToCartButton, UpdatesForm } from "@/components/Forms";
 import { RecentlyViewed } from "@/components/ProductParts";
 import SareeArt, { artKind } from "@/components/SareeArt";
 import { LotusIcon } from "@/components/Icons";
-import { CountUp, RotatingWord, ScrollCue } from "@/components/HeroMotion";
+import { CountUp, Hotspot, PhotoDrift, RotatingWord, ScrollCue } from "@/components/HeroMotion";
+import { OpenStatus } from "@/components/Extras";
 import { COLLECTIONS, OCCASION_TITLES, OCCASIONS, POSTS, PRODUCTS, SITE, WEAVES } from "@/lib/data";
 import { askPriceLink, byId, waLink, collectionProducts, collectionUrl, hasPrice, priceText, productUrl } from "@/lib/utils";
 
@@ -24,6 +25,8 @@ export default function Home() {
   const bestsellers = PRODUCTS.filter((p) => p.bestseller).slice(0, 4);
   const spot = byId(SITE.sareeOfTheWeek) || PRODUCTS[0];
   const sisters = sistersPhoto();
+  const lookPink = PRODUCTS.find((p) => p.colour === "Pink");
+  const lookPrint = PRODUCTS.find((p) => p.weave === "print");
   // One saree photo per occasion, each a different saree where possible.
   const used = new Set<string>();
   const occasions = OCCASIONS.map((name) => {
@@ -51,6 +54,18 @@ export default function Home() {
       <section className="hero">
         <div className="hero__media">
           {sisters ? <SitePhotoImg photo={sisters} alt="Chaitanya and Mansi, the sisters behind Varunavi Vastra" sizes="(max-width: 820px) 100vw, 52vw" eager /> : <Placeholder c1="#8d9744" c2="#b4bd70" label="Photo: Chaitanya and Mansi" />}
+          <PhotoDrift />
+          {/* Shop the look: pins sit on the sarees in the photo and lead to similar sarees */}
+          {sisters ? (
+            <>
+              <Hotspot x={36} y={60} label="Shop the look" title="Pink cotton sarees" href={"/shop?colour=Pink"}>
+                {lookPink ? <ProductImage p={lookPink} sizes={IMAGE_SIZES.thumb} /> : null}
+              </Hotspot>
+              <Hotspot x={60} y={72} label="Shop the look" title="Block print cotton" href={"/shop?weave=print"}>
+                {lookPrint ? <ProductImage p={lookPrint} sizes={IMAGE_SIZES.thumb} /> : null}
+              </Hotspot>
+            </>
+          ) : null}
           <span className="hero__stamp"><LotusIcon />Handwoven with love</span>
           <Link className="hero__peek" href="/our-story">Meet the founders <span aria-hidden="true">→</span></Link>
         </div>
@@ -66,6 +81,7 @@ export default function Home() {
           <a className="hero__chat" href={waLink("Hello Varunavi Vastra, I would like help choosing a saree.")} target="_blank" rel="noopener">
             or chat with us on WhatsApp <span aria-hidden="true">→</span>
           </a>
+          <div className="hero__status"><OpenStatus /></div>
           <dl className="hero__stats">
             <div><dt><CountUp value={PRODUCTS.length} /></dt><dd>Handpicked sarees</dd></div>
             <div><dt><CountUp value={Object.keys(WEAVES).length} /></dt><dd>Signature weaves</dd></div>
