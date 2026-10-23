@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { SITE } from "@/lib/data";
+import { PAY_OPTIONS } from "@/lib/payments";
 import { waLink } from "@/lib/utils";
 import { Logo } from "./Bits";
 import { WhatsappIcon } from "./Icons";
@@ -57,7 +58,7 @@ export default function Footer() {
           </div>
           <div className="footer__bottom">
             <span>© {new Date().getFullYear()} {SITE.name}. All rights reserved.</span>
-            <span className="footer__pay">We accept <b>UPI</b> <b>Bank transfer</b></span>
+            <span className="footer__pay">We accept {PAY_OPTIONS.map((o) => <b key={o.id}>{o.short}</b>)}</span>
             <span><Link href="/privacy">Privacy Policy</Link> · <Link href="/terms">Terms &amp; Conditions</Link></span>
           </div>
         </div>

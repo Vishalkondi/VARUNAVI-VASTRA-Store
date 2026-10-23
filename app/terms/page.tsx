@@ -15,7 +15,7 @@ export default function Terms() {
       <h2>Products</h2>
       <p>Our sarees are handcrafted, so each piece may vary slightly in weave and colour. Photos are as accurate as possible, but colours can look different on different screens.</p>
       <h2>Prices and orders</h2>
-      <p>Prices are in Indian Rupees. An order is confirmed only when we confirm it on WhatsApp and receive payment. We may decline an order if an item is out of stock or a price was shown in error.</p>
+      <p>Prices are in Indian Rupees. An order is confirmed only when we confirm it on WhatsApp and, unless you chose cash on delivery, receive payment. We may decline an order if an item is out of stock or a price was shown in error.</p>
       <h2>Shipping, cancellation and returns</h2>
       <p>See our <Link href="/shipping">Shipping &amp; Delivery</Link> and <Link href="/refund">Cancellation &amp; Refund</Link> pages.</p>
       <h2>Content</h2>

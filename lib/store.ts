@@ -5,6 +5,7 @@
 
 import { useSyncExternalStore } from "react";
 import { SITE } from "./data";
+import type { PayMethod } from "./payments";
 import { byId } from "./utils";
 
 const listeners = new Set<() => void>();
@@ -63,6 +64,7 @@ export const cart = {
     write("vv_cart", cart.items().map((i) => (lineKey(i) === key ? { ...i, qty: clampQty(qty) } : i)));
   },
   remove(key: string) { write("vv_cart", cart.items().filter((i) => lineKey(i) !== key)); },
+  clear() { write("vv_cart", []); },
 };
 
 export function useCart() {
@@ -73,6 +75,37 @@ export function useCart() {
     subtotal: items.reduce((n, i) => n + linePrice(i) * i.qty, 0),
   };
 }
+
+/* ---------- Orders ---------- */
+// A placed order, kept on this device so the "Order placed" page can show it.
+export type Order = {
+  id: string;
+  date: string; // ISO date and time
+  lines: { id: string; name: string; sku: string; qty: number; fp: boolean; price: number }[];
+  subtotal: number;
+  discount: number;
+  coupon?: string;
+  fee: number; // e.g. cash on delivery charge
+  total: number;
+  pay: PayMethod;
+  paid: boolean;
+  ref?: string; // payment reference the shopper gave
+  customer: { name: string; phone: string; address: string; city: string; pincode: string };
+  message: string; // the WhatsApp message sent to the shop
+};
+
+const NO_ORDERS: Order[] = [];
+
+// Order numbers look like VV-241024-4821: date, then four random digits.
+const two = (n: number) => String(n).padStart(2, "0");
+export const newOrderId = (d = new Date()) =>
+  "VV-" + two(d.getFullYear() % 100) + two(d.getMonth() + 1) + two(d.getDate()) + "-" + (1000 + Math.floor(Math.random() * 9000));
+
+export const orders = {
+  save(o: Order) { write("vv_orders", [o, ...read("vv_orders", NO_ORDERS).filter((x) => x.id !== o.id)].slice(0, 10)); },
+};
+
+export const useLastOrder = (): Order | undefined => useStored("vv_orders", NO_ORDERS)[0];
 
 /* ---------- Coupons ---------- */
 export const findCoupon = (code: string) => {

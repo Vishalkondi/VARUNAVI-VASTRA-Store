@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Crumbs, PageHead } from "@/components/Bits";
+import { PAY_OPTIONS } from "@/lib/payments";
 import { waLink } from "@/lib/utils";
 
 export const metadata: Metadata = {
@@ -18,8 +19,8 @@ export default function Faq() {
           <div className="accordion prose">
             <details><summary>Are your sarees really handcrafted?</summary><div><p>Yes. Our sarees are made by skilled weavers, so small variations in the weave are a sign of handwork, not a defect.</p></div></details>
             <details><summary>Do the sarees come with a blouse piece?</summary><div><p>Most of our sarees come with an attached blouse piece. The product page shows the length and whether a blouse piece is included.</p></div></details>
-            <details><summary>How do I place an order?</summary><div><p>Add sarees to your cart and tap &quot;Place order on WhatsApp&quot;. Your order details open in WhatsApp, and we confirm availability, shipping and payment with you there. You can also message us directly about any saree.</p></div></details>
-            <details><summary>How can I pay?</summary><div><p>We currently accept UPI and bank transfer. [Update this if you add other payment methods.]</p></div></details>
+            <details><summary>How do I place an order?</summary><div><p>Add sarees to your cart, fill in your delivery details, choose how to pay and tap &quot;Place order&quot;. You get an order number straight away, and your order is also sent to us on WhatsApp so we can confirm availability and shipping with you there. You can also message us directly about any saree.</p></div></details>
+            <details><summary>How can I pay?</summary><div><p>We accept {PAY_OPTIONS.map((o) => o.label).join(", ").replace(/, ([^,]*)$/, " and $1")}.</p></div></details>
             <details><summary>How long does delivery take?</summary><div><p>Ready-to-ship sarees are dispatched within 1 to 2 working days and usually arrive in 3 to 7 working days within India. See our <Link href="/shipping">Shipping &amp; Delivery</Link> page.</p></div></details>
             <details><summary>Do you ship outside India?</summary><div><p>[Yes / Not yet.] Message us on WhatsApp and we will check for your country.</p></div></details>
             <details><summary>Can I exchange or return a saree?</summary><div><p>If something is not right, message us within 48 hours of delivery with photos. See our <Link href="/refund">Cancellation &amp; Refund</Link> policy for details.</p></div></details>

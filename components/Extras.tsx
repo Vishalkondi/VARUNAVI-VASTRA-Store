@@ -6,22 +6,10 @@ import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
 import { SITE, type Product } from "@/lib/data";
 import { cart, read, useHydrated, write } from "@/lib/store";
-import { hasPrice, productUrl, waLink } from "@/lib/utils";
+import { addWorkingDays, hasPrice, productUrl, shortDate, waLink } from "@/lib/utils";
 import { useToast } from "./Toast";
 
 /* ---------- Delivery date by pincode ---------- */
-
-// The next date that is `n` working days (Monday to Saturday) after `from`.
-function addWorkingDays(from: Date, n: number) {
-  const d = new Date(from);
-  while (n > 0) {
-    d.setDate(d.getDate() + 1);
-    if (d.getDay() !== 0) n--;
-  }
-  return d;
-}
-
-const shortDate = (d: Date) => d.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" });
 
 // Courier time by pincode: 413 = Solapur district, 40 to 44 = Maharashtra (and Goa), anything else = rest of India.
 function courierDays(pin: string): [number, number] {

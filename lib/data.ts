@@ -42,6 +42,17 @@ export const SITE = {
   upiId: "",                            // e.g. "varunavivastra@okicici"  [add your real UPI ID]
   upiName: "Varunavi Vastra",
 
+  // Ways to pay at checkout (also listed in the footer and FAQ). UPI and bank transfer are always offered.  [confirm]
+  payments: {
+    cod: true,        // cash on delivery
+    codFee: 0,        // extra charge for cash on delivery, in rupees (0 = free)
+    codMax: 5000,     // cash on delivery only for orders up to this total (0 = no limit)
+    // Bank transfer details. Leave blank to share them on WhatsApp instead.
+    bank: { accountName: "", accountNumber: "", ifsc: "", bankName: "" },
+    // Link to a payment page for cards and net banking (e.g. a Razorpay, Cashfree or Instamojo payment page). "" hides the option.
+    cardLink: "",
+  },
+
   // Fall and picot service offered on every saree. Set to 0 to hide the option.
   fallPicotPrice: 150,                  // [confirm your price]
 

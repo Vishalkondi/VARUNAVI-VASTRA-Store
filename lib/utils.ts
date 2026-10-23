@@ -43,3 +43,15 @@ export function collectionProducts(c: Collection) {
   ).sort((a, b) => Number(!!a.soldOut) - Number(!!b.soldOut) || b.added - a.added);
 }
 export const collectionUrl = (c: Collection) => "/collections/" + c.slug;
+
+// The date `n` working days (Monday to Saturday) after `from`.
+export function addWorkingDays(from: Date, n: number) {
+  const d = new Date(from);
+  while (n > 0) {
+    d.setDate(d.getDate() + 1);
+    if (d.getDay() !== 0) n--;
+  }
+  return d;
+}
+
+export const shortDate = (d: Date) => d.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" });
