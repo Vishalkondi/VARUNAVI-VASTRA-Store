@@ -3,7 +3,7 @@
 /* "Order placed": the thank-you page after checkout. Reads the last order saved on this device. */
 
 import Link from "next/link";
-import { motion, MotionConfig } from "framer-motion";
+import { motion } from "framer-motion";
 import { SITE } from "@/lib/data";
 import { payOption } from "@/lib/payments";
 import { useHydrated, useLastOrder, type Order } from "@/lib/store";
@@ -37,68 +37,66 @@ export default function OrderPlaced() {
   const placedOn = new Date(order.date);
 
   return (
-    <MotionConfig reducedMotion="user">
-      <div className="placed">
-        <div className="placed__hero">
-          <Tick />
-          <motion.p className="eyebrow" {...rise(0.55)}>Order placed</motion.p>
-          <motion.h1 {...rise(0.65)}>Thank you{first ? ", " + first : ""}!</motion.h1>
-          <motion.p className="placed__lead" {...rise(0.75)}>
-            Your order <strong>{order.id}</strong> is with us. We have also sent it on WhatsApp and will confirm it with you there shortly.
-          </motion.p>
-          <motion.div className="placed__actions" {...rise(0.85)}>
-            <a className="btn btn--whatsapp" href={waLink(order.message)} target="_blank" rel="noopener">WhatsApp didn&apos;t open? Send the order again</a>
-          </motion.div>
-        </div>
-
-        <div className="placed__grid">
-          <motion.section className="placed__card" {...rise(0.95)} aria-labelledby="placed-next">
-            <h2 id="placed-next">What happens next</h2>
-            <ol className="placed__steps">
-              {nextSteps(order, placedOn).map((s, i) => (
-                <motion.li key={s.title} initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 1.05 + i * 0.12, duration: 0.4 }}>
-                  <span className="placed__dot" aria-hidden="true">{i + 1}</span>
-                  <div><strong>{s.title}</strong><p>{s.text}</p></div>
-                </motion.li>
-              ))}
-            </ol>
-          </motion.section>
-
-          <motion.section className="placed__card" {...rise(1.05)} aria-labelledby="placed-summary">
-            <h2 id="placed-summary">Order summary</h2>
-            <p className="placed__meta">{order.id} · {placedOn.toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}</p>
-            <ul className="placed__lines">
-              {order.lines.map((l) => {
-                const p = byId(l.id);
-                return (
-                  <li key={l.id + (l.fp ? ":fp" : "")}>
-                    {p ? <Link className="media" href={productUrl(p)}><ProductImage p={p} sizes={IMAGE_SIZES.thumb} /></Link> : <span className="media" />}
-                    <div>
-                      <strong>{l.name}</strong>
-                      <small>{l.sku} · Qty {l.qty}{l.fp ? " · with fall and picot" : ""}</small>
-                    </div>
-                    <span>{rupees(l.price * l.qty)}</span>
-                  </li>
-                );
-              })}
-            </ul>
-            <div className="summary__row"><span>Subtotal</span><span>{rupees(order.subtotal)}</span></div>
-            {order.discount ? <div className="summary__row summary__row--discount"><span>Discount{order.coupon ? " (" + order.coupon + ")" : ""}</span><span>− {rupees(order.discount)}</span></div> : null}
-            {order.fee ? <div className="summary__row"><span>Cash on delivery charge</span><span>{rupees(order.fee)}</span></div> : null}
-            <div className="summary__row summary__row--total"><span>Total</span><span>{rupees(order.total)}</span></div>
-            <dl className="placed__facts">
-              <div><dt>Payment</dt><dd>{payOption(order.pay).label} · {order.paid ? "paid" + (order.ref ? " (ref " + order.ref + ")" : "") : order.pay === "cod" ? "pay on delivery" : "pay after we confirm"}</dd></div>
-              <div><dt>Deliver to</dt><dd>{order.customer.name}<br />{order.customer.address}, {order.customer.city} {order.customer.pincode}<br />{order.customer.phone}</dd></div>
-            </dl>
-          </motion.section>
-        </div>
-
-        <motion.div className="placed__more" {...rise(1.2)}>
-          <Link className="btn btn--pink" href="/shop">Continue shopping</Link>
-          <Link className="btn btn--outline" href="/track-order">Track your order</Link>
+    <div className="placed">
+      <div className="placed__hero">
+        <Tick />
+        <motion.p className="eyebrow" {...rise(0.55)}>Order placed</motion.p>
+        <motion.h1 {...rise(0.65)}>Thank you{first ? ", " + first : ""}!</motion.h1>
+        <motion.p className="placed__lead" {...rise(0.75)}>
+          Your order <strong>{order.id}</strong> is with us. We have also sent it on WhatsApp and will confirm it with you there shortly.
+        </motion.p>
+        <motion.div className="placed__actions" {...rise(0.85)}>
+          <a className="btn btn--whatsapp" href={waLink(order.message)} target="_blank" rel="noopener">WhatsApp didn&apos;t open? Send the order again</a>
         </motion.div>
       </div>
-    </MotionConfig>
+
+      <div className="placed__grid">
+        <motion.section className="placed__card" {...rise(0.95)} aria-labelledby="placed-next">
+          <h2 id="placed-next">What happens next</h2>
+          <ol className="placed__steps">
+            {nextSteps(order, placedOn).map((s, i) => (
+              <motion.li key={s.title} initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 1.05 + i * 0.12, duration: 0.4 }}>
+                <span className="placed__dot" aria-hidden="true">{i + 1}</span>
+                <div><strong>{s.title}</strong><p>{s.text}</p></div>
+              </motion.li>
+            ))}
+          </ol>
+        </motion.section>
+
+        <motion.section className="placed__card" {...rise(1.05)} aria-labelledby="placed-summary">
+          <h2 id="placed-summary">Order summary</h2>
+          <p className="placed__meta">{order.id} · {placedOn.toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}</p>
+          <ul className="placed__lines">
+            {order.lines.map((l) => {
+              const p = byId(l.id);
+              return (
+                <li key={l.id + (l.fp ? ":fp" : "")}>
+                  {p ? <Link className="media" href={productUrl(p)}><ProductImage p={p} sizes={IMAGE_SIZES.thumb} /></Link> : <span className="media" />}
+                  <div>
+                    <strong>{l.name}</strong>
+                    <small>{l.sku} · Qty {l.qty}{l.fp ? " · with fall and picot" : ""}</small>
+                  </div>
+                  <span>{rupees(l.price * l.qty)}</span>
+                </li>
+              );
+            })}
+          </ul>
+          <div className="summary__row"><span>Subtotal</span><span>{rupees(order.subtotal)}</span></div>
+          {order.discount ? <div className="summary__row summary__row--discount"><span>Discount{order.coupon ? " (" + order.coupon + ")" : ""}</span><span>− {rupees(order.discount)}</span></div> : null}
+          {order.fee ? <div className="summary__row"><span>Cash on delivery charge</span><span>{rupees(order.fee)}</span></div> : null}
+          <div className="summary__row summary__row--total"><span>Total</span><span>{rupees(order.total)}</span></div>
+          <dl className="placed__facts">
+            <div><dt>Payment</dt><dd>{payOption(order.pay).label} · {order.paid ? "paid" + (order.ref ? " (ref " + order.ref + ")" : "") : order.pay === "cod" ? "pay on delivery" : "pay after we confirm"}</dd></div>
+            <div><dt>Deliver to</dt><dd>{order.customer.name}<br />{order.customer.address}, {order.customer.city} {order.customer.pincode}<br />{order.customer.phone}</dd></div>
+          </dl>
+        </motion.section>
+      </div>
+
+      <motion.div className="placed__more" {...rise(1.2)}>
+        <Link className="btn btn--pink" href="/shop">Continue shopping</Link>
+        <Link className="btn btn--outline" href="/track-order">Track your order</Link>
+      </motion.div>
+    </div>
   );
 }
 

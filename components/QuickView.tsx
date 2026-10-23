@@ -2,6 +2,7 @@
 
 /* "Quick view": a saree's key details in a pop-up, opened from its card without leaving the page. */
 
+import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { WEAVES, type Product } from "@/lib/data";
@@ -9,6 +10,7 @@ import { askPriceLink, hasPrice, priceText, productUrl } from "@/lib/utils";
 import { IMAGE_SIZES, ProductImage } from "./Bits";
 import { useAddToCart } from "./Forms";
 import { CloseIcon, EyeIcon } from "./Icons";
+import { scrim, SPRING } from "./Motion";
 import WishButton from "./WishButton";
 
 export default function QuickViewButton({ p }: { p: Product }) {
@@ -18,7 +20,7 @@ export default function QuickViewButton({ p }: { p: Product }) {
       <button type="button" className="card__qv" aria-label={"Quick view: " + p.name} onClick={() => setOpen(true)}>
         <EyeIcon />
       </button>
-      {open ? <QuickView p={p} onClose={() => setOpen(false)} /> : null}
+      <AnimatePresence>{open ? <QuickView p={p} onClose={() => setOpen(false)} /> : null}</AnimatePresence>
     </>
   );
 }
@@ -41,9 +43,13 @@ function QuickView({ p, onClose }: { p: Product; onClose: () => void }) {
   }, [onClose]);
 
   return (
-    <div className="qv">
-      <div className="qv__scrim" onClick={onClose} />
-      <div className="qv__panel" role="dialog" aria-modal="true" aria-labelledby={"qv-" + p.id}>
+    <motion.div className="qv" exit={{ pointerEvents: "none" }}>
+      <motion.div className="qv__scrim" onClick={onClose} {...scrim} />
+      <motion.div
+        className="qv__panel" role="dialog" aria-modal="true" aria-labelledby={"qv-" + p.id}
+        initial={{ opacity: 0, y: 28, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 16, scale: 0.98, transition: { duration: 0.18 } }}
+        transition={SPRING}
+      >
         <button type="button" className="icon-btn qv__close" aria-label="Close" onClick={onClose} ref={closeBtn}><CloseIcon /></button>
         <div className="qv__media media"><ProductImage p={p} eager sizes={IMAGE_SIZES.card} /></div>
         <div className="qv__info">
@@ -68,7 +74,7 @@ function QuickView({ p, onClose }: { p: Product; onClose: () => void }) {
           </div>
           <Link className="link-btn" href={productUrl(p)}>View full details</Link>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

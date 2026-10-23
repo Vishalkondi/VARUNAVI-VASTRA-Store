@@ -101,9 +101,7 @@
 
 /* Toast */
 .toast {
-  position: fixed; left: 50%; bottom: 28px; transform: translate(-50%, 20px); z-index: 120;
-  background: var(--ink); color: #fff; padding: 12px 20px; border-radius: 3px; font-size: 14px;
-  opacity: 0; pointer-events: none; transition: opacity .25s, transform .25s; max-width: calc(100vw - 32px);
+  position: fixed; left: 50%; bottom: 28px; z-index: 120; /* moved into place by Framer Motion (Toast.tsx) */
+  background: var(--ink); color: #fff; padding: 12px 20px; border-radius: 3px; font-size: 14px; max-width: calc(100vw - 32px);
 }
-.toast.is-on { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
 .toast a { text-decoration: underline; margin-left: 10px; color: #f6c6db; }

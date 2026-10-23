@@ -3,9 +3,18 @@
 /* Full-screen photo viewer. Swipe (or arrow keys) between photos; pinch, double-tap
  * or click to zoom, then drag to look around. Escape or ✕ closes it. */
 
+import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { CloseIcon } from "./Icons";
+import { EASE } from "./Motion";
+
+// The next photo slides in from the side you swiped towards.
+const photo = {
+  enter: (dir: number) => ({ opacity: 0, x: dir * 80 }),
+  show: { opacity: 1, x: 0 },
+  leave: (dir: number) => ({ opacity: 0, x: dir * -80 }),
+};
 
 export type Slide = { src: string; alt: string; title: string; sub?: string; href?: string };
 
@@ -14,6 +23,7 @@ const clamp = (n: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, n
 
 export default function Lightbox({ slides, start, onClose }: { slides: Slide[]; start: number; onClose: () => void }) {
   const [index, setIndex] = useState(start);
+  const [dir, setDir] = useState(1);
   const [view, setView] = useState({ scale: 1, x: 0, y: 0 });
   const [swipe, setSwipe] = useState(0); // horizontal drag offset while swiping between photos
   const pointers = useRef(new Map<number, { x: number; y: number }>());
@@ -24,6 +34,7 @@ export default function Lightbox({ slides, start, onClose }: { slides: Slide[]; 
   const count = slides.length;
 
   const go = useCallback((step: number) => {
+    setDir(step);
     setIndex((i) => (i + step + count) % count);
     setView({ scale: 1, x: 0, y: 0 });
   }, [count]);
@@ -99,7 +110,10 @@ export default function Lightbox({ slides, start, onClose }: { slides: Slide[]; 
 
   const slide = slides[index];
   return (
-    <div className="lightbox" role="dialog" aria-modal="true" aria-label={"Photo viewer: " + slide.title}>
+    <motion.div
+      className="lightbox" role="dialog" aria-modal="true" aria-label={"Photo viewer: " + slide.title}
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.22 }}
+    >
       <div className="lightbox__top">
         <span className="lightbox__count">{index + 1} / {count}</span>
         <button ref={closeRef} type="button" className="lightbox__close" aria-label="Close photo viewer" onClick={onClose}><CloseIcon /></button>
@@ -109,14 +123,21 @@ export default function Lightbox({ slides, start, onClose }: { slides: Slide[]; 
         className={"lightbox__stage" + (view.scale > 1 ? " is-zoomed" : "")}
         onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          key={slide.src} src={slide.src} alt={slide.alt} draggable={false}
-          style={{
-            transform: `translate(${view.x + swipe}px, ${view.y}px) scale(${view.scale})`,
-            transition: pointers.current.size ? "none" : undefined,
-          }}
-        />
+        <AnimatePresence initial={false} custom={dir}>
+          <motion.div
+            key={slide.src} className="lightbox__slide" custom={dir} variants={photo}
+            initial="enter" animate="show" exit="leave" transition={{ duration: 0.32, ease: EASE }}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={slide.src} alt={slide.alt} draggable={false}
+              style={{
+                transform: `translate(${view.x + swipe}px, ${view.y}px) scale(${view.scale})`,
+                transition: pointers.current.size ? "none" : undefined,
+              }}
+            />
+          </motion.div>
+        </AnimatePresence>
       </div>
 
       {count > 1 ? (
@@ -134,6 +155,6 @@ export default function Lightbox({ slides, start, onClose }: { slides: Slide[]; 
         {slide.href ? <Link className="btn btn--white" href={slide.href} onClick={onClose}>View saree</Link> : null}
       </div>
       <p className="lightbox__hint">{count > 1 ? "Swipe for more · " : ""}Pinch or double-tap to zoom</p>
-    </div>
+    </motion.div>
   );
 }

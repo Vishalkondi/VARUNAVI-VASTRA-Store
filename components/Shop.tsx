@@ -1,5 +1,6 @@
 "use client";
 
+import { AnimatePresence, motion, useDragControls } from "framer-motion";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -7,6 +8,7 @@ import { OCCASION_SUBS, OCCASION_TITLES, OCCASIONS, PRODUCTS, SITE, WEAVES, type
 import { hasPrice, searchProducts, waLink } from "@/lib/utils";
 import { Crumbs, PageHead, ProductCard } from "./Bits";
 import { CloseIcon, FilterIcon } from "./Icons";
+import { scrim, SPRING } from "./Motion";
 
 const PAGE_SIZE = 12;
 const FILTERS = ["weave", "colour", "occasion", "price"] as const;
@@ -55,14 +57,17 @@ function Select({ id, label, value, all, options, onChange }: {
 export default function Shop() {
   const sp = useSearchParams();
   const [sheet, setSheet] = useState(false);
-  // Remount on every URL change so "Load more" starts again, as the old site did.
-  return <ShopView key={sp.toString()} sp={sp} sheet={sheet} setSheet={setSheet} />;
+  return <ShopView sp={sp} sheet={sheet} setSheet={setSheet} />;
 }
 
 function ShopView({ sp, sheet = false, setSheet = () => {} }: { sp: URLSearchParams; sheet?: boolean; setSheet?: (on: boolean) => void }) {
   const router = useRouter();
   const path = usePathname();
-  const [shown, setShown] = useState(PAGE_SIZE);
+  // "Load more" starts again whenever the filters or sort change.
+  const spKey = sp.toString();
+  const [page, setPage] = useState({ key: spKey, shown: PAGE_SIZE });
+  const shown = page.key === spKey ? page.shown : PAGE_SIZE;
+  const sheetDrag = useDragControls();
   const { title, sub } = heading(sp);
   const q = (sp.get("q") || "").trim();
   const isNew = sp.get("new") === "1";
@@ -144,31 +149,53 @@ function ShopView({ sp, sheet = false, setSheet = () => {} }: { sp: URLSearchPar
         <p className="finder-hint">Not sure where to start? <Link href="/finder">Answer three quick questions</Link> and we will suggest sarees for you.</p>
 
         {/* Phones: filters in a panel that slides up from the bottom */}
-        <div className={"sheet" + (sheet ? " is-open" : "")} aria-hidden={!sheet}>
-          <div className="sheet__scrim" onClick={() => setSheet(false)} />
-          <div className="sheet__panel" role="dialog" aria-modal="true" aria-label="Filter sarees">
-            <div className="sheet__head">
-              <h2>Filters</h2>
-              <button type="button" className="icon-btn" aria-label="Close filters" onClick={() => setSheet(false)}><CloseIcon /></button>
-            </div>
-            <div className="sheet__body">
-              <h3>Collection</h3>
-              {chips("weave", Object.entries(WEAVES).map(([k, w]) => [k, w.label]))}
-              <h3>Colour</h3>
-              {chips("colour", COLOURS.map((c) => [c, c]), COLOUR_DOT)}
-              <h3>Occasion</h3>
-              {chips("occasion", OCCASIONS.map((o) => [o, o]))}
-              {ANY_PRICES ? <><h3>Price</h3>{chips("price", PRICES)}</> : null}
-            </div>
-            <div className="sheet__foot">
-              <button className="btn btn--outline" type="button" disabled={!active} onClick={clear}>Clear all</button>
-              <button className="btn btn--pink" type="button" onClick={() => setSheet(false)}>Show {list.length} {list.length === 1 ? "saree" : "sarees"}</button>
-            </div>
-          </div>
-        </div>
+        <AnimatePresence>
+          {sheet ? (
+            <motion.div className="sheet" key="sheet" exit={{ pointerEvents: "none" }}>
+              <motion.div className="sheet__scrim" onClick={() => setSheet(false)} {...scrim} />
+              <motion.div
+                className="sheet__panel" role="dialog" aria-modal="true" aria-label="Filter sarees"
+                initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={SPRING}
+                drag="y" dragListener={false} dragControls={sheetDrag} dragConstraints={{ top: 0, bottom: 0 }} dragElastic={{ top: 0, bottom: 0.8 }}
+                onDragEnd={(_, info) => { if (info.offset.y > 110 || info.velocity.y > 600) setSheet(false); }}
+              >
+                <div className="sheet__head" onPointerDown={(e) => { if (!(e.target as Element).closest("button")) sheetDrag.start(e); }}>
+                  <h2>Filters</h2>
+                  <button type="button" className="icon-btn" aria-label="Close filters" onClick={() => setSheet(false)}><CloseIcon /></button>
+                </div>
+                <div className="sheet__body">
+                  <h3>Collection</h3>
+                  {chips("weave", Object.entries(WEAVES).map(([k, w]) => [k, w.label]))}
+                  <h3>Colour</h3>
+                  {chips("colour", COLOURS.map((c) => [c, c]), COLOUR_DOT)}
+                  <h3>Occasion</h3>
+                  {chips("occasion", OCCASIONS.map((o) => [o, o]))}
+                  {ANY_PRICES ? <><h3>Price</h3>{chips("price", PRICES)}</> : null}
+                </div>
+                <div className="sheet__foot">
+                  <button className="btn btn--outline" type="button" disabled={!active} onClick={clear}>Clear all</button>
+                  <button className="btn btn--pink" type="button" onClick={() => setSheet(false)}>Show {list.length} {list.length === 1 ? "saree" : "sarees"}</button>
+                </div>
+              </motion.div>
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
 
         {list.length ? (
-          <div className="grid">{list.slice(0, shown).map((p) => <ProductCard p={p} key={p.id} />)}</div>
+          <div className="grid">
+            {/* Sarees glide to their new places when the filters or sort change */}
+            <AnimatePresence mode="popLayout" initial={false}>
+              {list.slice(0, shown).map((p) => (
+                <motion.div
+                  key={p.id} layout className="grid__item"
+                  initial={{ opacity: 0, scale: 0.94 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.94, transition: { duration: 0.15 } }}
+                  transition={SPRING}
+                >
+                  <ProductCard p={p} />
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
         ) : (
           <div className="empty">
             <h2>No sarees match these filters</h2>
@@ -177,7 +204,7 @@ function ShopView({ sp, sheet = false, setSheet = () => {} }: { sp: URLSearchPar
           </div>
         )}
         <div className="view-all" style={{ marginBottom: 72 }}>
-          <button className="btn btn--outline" type="button" hidden={list.length <= shown} onClick={() => setShown((n) => n + PAGE_SIZE)}>Load more</button>
+          <button className="btn btn--outline" type="button" hidden={list.length <= shown} onClick={() => setPage({ key: spKey, shown: shown + PAGE_SIZE })}>Load more</button>
         </div>
       </section>
     </>

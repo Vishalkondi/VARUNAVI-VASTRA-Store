@@ -71,10 +71,10 @@
 @media (hover: none) { .card__qv { display: none; } }
 
 .qv { position: fixed; inset: 0; z-index: 120; display: flex; align-items: center; justify-content: center; padding: 24px; }
-.qv__scrim { position: absolute; inset: 0; background: rgba(30, 30, 20, .5); animation: qv-fade .2s ease; }
+.qv__scrim { position: absolute; inset: 0; background: rgba(30, 30, 20, .5); }
 .qv__panel {
   position: relative; background: #fff; border-radius: 4px; width: min(880px, 100%); max-height: calc(100vh - 48px); overflow: auto;
-  display: grid; grid-template-columns: 1fr 1.1fr; box-shadow: 0 30px 80px -20px rgba(0, 0, 0, .35); animation: qv-in .25s ease;
+  display: grid; grid-template-columns: 1fr 1.1fr; box-shadow: 0 30px 80px -20px rgba(0, 0, 0, .35);
 }
 .qv__close { position: absolute; top: 10px; right: 10px; z-index: 2; background: rgba(255, 255, 255, .9); border-radius: 50%; width: 36px; height: 36px; justify-content: center; }
 .qv__media { aspect-ratio: 3 / 4; }
@@ -88,8 +88,6 @@
 .qv__facts dt { color: var(--muted); }
 .qv__facts dd { margin: 0; }
 .qv__info .link-btn { align-self: flex-start; margin-top: 4px; }
-@keyframes qv-fade { from { opacity: 0; } }
-@keyframes qv-in { from { opacity: 0; transform: translateY(14px) scale(.98); } }
 
 /* ---------- Saree finder ---------- */
 .finder { max-width: 760px; margin: 0 auto; text-align: center; }

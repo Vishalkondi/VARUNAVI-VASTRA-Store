@@ -40,8 +40,7 @@
 .nav li:hover > .nav__drop, .nav li:focus-within > .nav__drop { display: block; }
 
 /* Mobile drawer */
-.drawer { position: fixed; inset: 0; z-index: 100; display: none; }
-.drawer.is-open { display: block; }
+.drawer { position: fixed; inset: 0; z-index: 100; }
 .drawer__scrim { position: absolute; inset: 0; background: rgba(30,30,20,.45); }
 .drawer__panel {
   position: absolute; top: 0; left: 0; bottom: 0; width: min(86vw, 340px); background: #fff;
@@ -57,8 +56,7 @@
 .drawer__foot { margin-top: 24px; font-size: 13px; color: var(--muted); }
 
 /* Search overlay */
-.search { position: fixed; inset: 0; z-index: 110; display: none; }
-.search.is-open { display: block; }
+.search { position: fixed; inset: 0; z-index: 110; }
 .search__panel { background: #fff; padding: 28px 0 24px; box-shadow: 0 10px 30px rgba(0,0,0,.1); position: relative; }
 .search__form { display: flex; gap: 12px; align-items: center; border-bottom: 1px solid var(--ink); padding-bottom: 10px; }
 .search__form input { flex: 1; border: 0; font-size: 20px; font-family: var(--serif); outline: none; padding: 6px 0; min-width: 0; }

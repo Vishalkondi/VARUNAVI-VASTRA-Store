@@ -3,6 +3,7 @@
 /* Compare sarees: a toggle on cards and saree pages, a tray that follows the shopper,
  * and the side-by-side table on /compare. The list is saved in the browser. */
 
+import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import type { CSSProperties, MouseEvent, ReactNode } from "react";
 import { usePathname } from "next/navigation";
@@ -13,6 +14,7 @@ import { CloseIcon, CompareIcon } from "./Icons";
 import { useToast } from "./Toast";
 import { IMAGE_SIZES, ProductImage, Stars } from "./Bits";
 import { AddToCartButton } from "./Forms";
+import { POP } from "./Motion";
 
 export function CompareButton({ p, variant = "icon" }: { p: Product; variant?: "icon" | "text" }) {
   const on = useCompare().includes(p.id);
@@ -43,24 +45,36 @@ export function CompareTray() {
   const ids = useCompare();
   const path = usePathname();
   const hydrated = useHydrated();
-  if (!hydrated || !ids.length || path.startsWith("/compare")) return null;
   const items = ids.map((id) => byId(id)!);
+  const show = hydrated && items.length > 0 && !path.startsWith("/compare");
   return (
-    <aside className={"compare-tray" + (path.startsWith("/product") ? " compare-tray--pdp" : "")} aria-label="Sarees to compare">
-      <ul className="compare-tray__list">
-        {items.map((p) => (
-          <li key={p.id}>
-            <Link href={productUrl(p)} className="compare-tray__thumb" title={p.name}><ProductImage p={p} sizes={IMAGE_SIZES.thumb} /></Link>
-            <button type="button" aria-label={"Remove " + p.name} onClick={() => compare.remove(p.id)}><CloseIcon /></button>
-          </li>
-        ))}
-        {Array.from({ length: COMPARE_MAX - items.length }, (_, i) => <li key={"empty" + i} className="compare-tray__empty" aria-hidden="true">+</li>)}
-      </ul>
-      <div className="compare-tray__actions">
-        <Link className="btn btn--pink" href="/compare" aria-disabled={items.length < 2}>Compare {items.length}/{COMPARE_MAX}</Link>
-        <button type="button" className="compare-tray__clear" onClick={() => compare.clear()}>Clear</button>
-      </div>
-    </aside>
+    <AnimatePresence>
+      {show ? (
+        <motion.aside
+          className={"compare-tray" + (path.startsWith("/product") ? " compare-tray--pdp" : "")} aria-label="Sarees to compare"
+          initial={{ opacity: 0, x: "-50%", y: 30 }} animate={{ opacity: 1, x: "-50%", y: 0 }} exit={{ opacity: 0, x: "-50%", y: 30 }}
+          transition={POP}
+        >
+          <ul className="compare-tray__list">
+            <AnimatePresence mode="popLayout" initial={false}>
+              {items.map((p) => (
+                <motion.li key={p.id} layout initial={{ opacity: 0, scale: 0.6 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.6 }} transition={POP}>
+                  <Link href={productUrl(p)} className="compare-tray__thumb" title={p.name}><ProductImage p={p} sizes={IMAGE_SIZES.thumb} /></Link>
+                  <button type="button" aria-label={"Remove " + p.name} onClick={() => compare.remove(p.id)}><CloseIcon /></button>
+                </motion.li>
+              ))}
+              {Array.from({ length: COMPARE_MAX - items.length }, (_, i) => (
+                <motion.li layout key={"empty" + i} className="compare-tray__empty" aria-hidden="true" transition={POP}>+</motion.li>
+              ))}
+            </AnimatePresence>
+          </ul>
+          <div className="compare-tray__actions">
+            <Link className="btn btn--pink" href="/compare" aria-disabled={items.length < 2}>Compare {items.length}/{COMPARE_MAX}</Link>
+            <button type="button" className="compare-tray__clear" onClick={() => compare.clear()}>Clear</button>
+          </div>
+        </motion.aside>
+      ) : null}
+    </AnimatePresence>
   );
 }
 

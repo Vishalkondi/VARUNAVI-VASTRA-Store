@@ -2,8 +2,10 @@
 
 /* Small moving touches for the homepage banner: a rotating word, counting numbers and a scroll cue. */
 
+import { animate, AnimatePresence, motion, useInView } from "framer-motion";
 import Link from "next/link";
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { EASE } from "./Motion";
 
 const calm = () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -19,7 +21,17 @@ export function RotatingWord({ words }: { words: string[] }) {
     <>
       <span className="sr-only">{words[0]}</span>
       <em className="hero__rotate" aria-hidden="true">
-        {words.map((w, n) => <span key={w} className={n === i ? "is-on" : undefined}>{w}</span>)}
+        {/* every word sits in the same grid cell, so the line keeps the width of the longest */}
+        {words.map((w) => <span key={w} className="hero__rotate-size">{w}</span>)}
+        <AnimatePresence initial={false}>
+          <motion.span
+            key={words[i]} className="is-on"
+            initial={{ opacity: 0, y: "0.45em" }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: "-0.45em" }}
+            transition={{ duration: 0.5, ease: EASE }}
+          >
+            {words[i]}
+          </motion.span>
+        </AnimatePresence>
       </em>
     </>
   );
@@ -28,26 +40,14 @@ export function RotatingWord({ words }: { words: string[] }) {
 // Counts up from zero the first time the number scrolls into view.
 export function CountUp({ value, decimals = 0, suffix = "" }: { value: number; decimals?: number; suffix?: string }) {
   const ref = useRef<HTMLSpanElement>(null);
+  const seen = useInView(ref, { once: true, amount: 0.4 });
   const [shown, setShown] = useState(value);
   useEffect(() => {
-    const el = ref.current;
-    if (!el || calm()) return;
-    setShown(0);
-    let frame = 0;
-    const io = new IntersectionObserver(([e]) => {
-      if (!e.isIntersecting) return;
-      io.disconnect();
-      const start = performance.now();
-      const tick = (now: number) => {
-        const p = Math.min(1, (now - start) / 1200);
-        setShown(value * (1 - Math.pow(1 - p, 3)));
-        if (p < 1) frame = requestAnimationFrame(tick);
-      };
-      frame = requestAnimationFrame(tick);
-    }, { threshold: 0.4 });
-    io.observe(el);
-    return () => { io.disconnect(); cancelAnimationFrame(frame); };
-  }, [value]);
+    if (calm()) return;
+    if (!seen) { setShown(0); return; }
+    const run = animate(0, value, { duration: 1.2, ease: EASE, onUpdate: setShown });
+    return () => run.stop();
+  }, [seen, value]);
   return <span ref={ref}>{shown.toFixed(decimals)}{suffix}</span>;
 }
 
@@ -78,24 +78,23 @@ export function Hotspot({ x, y, label, title, href, children }: { x: number; y: 
   );
 }
 
-// Lets the banner photo drift a few pixels with the mouse, for a sense of depth.
+// Lets the banner photo drift a few pixels with the mouse, for a sense of depth. A spring keeps it smooth.
 export function PhotoDrift() {
   const ref = useRef<HTMLSpanElement>(null);
   useEffect(() => {
     const box = ref.current?.parentElement;
     const img = box?.querySelector<HTMLImageElement>(":scope > img");
     if (!box || !img || calm() || !window.matchMedia("(hover: hover)").matches) return;
-    let frame = 0;
+    const spring = { type: "spring", stiffness: 90, damping: 18 } as const;
     const move = (e: PointerEvent) => {
       const r = box.getBoundingClientRect();
       const dx = (e.clientX - r.left) / r.width - 0.5, dy = (e.clientY - r.top) / r.height - 0.5;
-      cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(() => { img.style.transform = `scale(1.05) translate(${dx * -12}px, ${dy * -10}px)`; });
+      animate(img, { scale: 1.05, x: dx * -12, y: dy * -10 }, spring);
     };
-    const leave = () => { cancelAnimationFrame(frame); img.style.transform = ""; };
+    const leave = () => { animate(img, { scale: 1, x: 0, y: 0 }, spring); };
     box.addEventListener("pointermove", move);
     box.addEventListener("pointerleave", leave);
-    return () => { box.removeEventListener("pointermove", move); box.removeEventListener("pointerleave", leave); cancelAnimationFrame(frame); };
+    return () => { box.removeEventListener("pointermove", move); box.removeEventListener("pointerleave", leave); };
   }, []);
   return <span ref={ref} hidden />;
 }

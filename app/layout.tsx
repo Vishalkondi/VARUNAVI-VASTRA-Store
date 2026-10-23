@@ -6,6 +6,7 @@ import { CompareTray } from "@/components/Compare";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import MobileNav from "@/components/MobileNav";
+import { MotionProvider } from "@/components/Motion";
 import RevealOnScroll from "@/components/RevealOnScroll";
 import { ToastProvider } from "@/components/Toast";
 import { SITE } from "@/lib/data";
@@ -70,15 +71,17 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         {process.env.NODE_ENV === "development" ? <script dangerouslySetInnerHTML={{ __html: STRIP_EXTENSION_ATTRS }} /> : null}
       </head>
       <body suppressHydrationWarning>
-        <ToastProvider>
-          <Header />
-          <main id="main">{children}</main>
-          <Footer />
-          <MobileNav />
-          <BackToTop />
-          <CompareTray />
-          <RevealOnScroll />
-        </ToastProvider>
+        <MotionProvider>
+          <ToastProvider>
+            <Header />
+            <main id="main">{children}</main>
+            <Footer />
+            <MobileNav />
+            <BackToTop />
+            <CompareTray />
+            <RevealOnScroll />
+          </ToastProvider>
+        </MotionProvider>
       </body>
     </html>
   );

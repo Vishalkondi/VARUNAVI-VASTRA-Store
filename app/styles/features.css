@@ -78,12 +78,12 @@ svg.art { display: block; width: 100%; height: 100%; background: none; }
 .gallery__expand svg { width: 14px; height: 14px; }
 .gallery__main.is-zoomed .gallery__expand { opacity: 0; }
 
-.lightbox { position: fixed; inset: 0; z-index: 200; background: #15140f; color: #fff; display: flex; flex-direction: column; animation: lb-in .2s ease-out; }
-@keyframes lb-in { from { opacity: 0; } }
+.lightbox { position: fixed; inset: 0; z-index: 200; background: #15140f; color: #fff; display: flex; flex-direction: column; }
 .lightbox__top { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; font-size: 13px; color: rgba(255, 255, 255, .75); }
 .lightbox__close { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: rgba(255, 255, 255, .1); color: #fff; }
 .lightbox__close svg { width: 22px; height: 22px; }
-.lightbox__stage { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; touch-action: none; cursor: zoom-in; user-select: none; }
+.lightbox__stage { flex: 1; min-height: 0; display: grid; overflow: hidden; touch-action: none; cursor: zoom-in; user-select: none; }
+.lightbox__slide { grid-area: 1 / 1; min-height: 0; display: flex; align-items: center; justify-content: center; }
 .lightbox__stage.is-zoomed { cursor: grab; }
 .lightbox__stage img { max-width: 100%; max-height: 100%; object-fit: contain; transition: transform .25s ease-out; will-change: transform; }
 .lightbox__nav {
@@ -131,7 +131,7 @@ svg.art { display: block; width: 100%; height: 100%; background: none; }
 }
 
 /* ---------- Fade in on scroll (see RevealOnScroll) ---------- */
-.reveal-on [data-reveal] { opacity: 0; transform: translateY(18px); transition: opacity .6s ease, transform .6s ease; }
+.reveal-on [data-reveal] { opacity: 0; transform: translateY(18px); } /* faded in by Framer Motion (RevealOnScroll.tsx) */
 .reveal-on [data-reveal].is-visible { opacity: 1; transform: none; }
 
 /* ---------- Hover polish ---------- */
@@ -171,15 +171,13 @@ svg.art { display: block; width: 100%; height: 100%; background: none; }
   .toolbar { flex-wrap: nowrap; }
   .toolbar__right { margin-left: auto; }
 
-  .sheet { display: block; position: fixed; inset: 0; z-index: 150; pointer-events: none; }
-  .sheet.is-open { pointer-events: auto; }
-  .sheet__scrim { position: absolute; inset: 0; background: rgba(30, 30, 20, .45); opacity: 0; transition: opacity .25s; }
-  .sheet.is-open .sheet__scrim { opacity: 1; }
+  .sheet { display: block; position: fixed; inset: 0; z-index: 150; }
+  .sheet__scrim { position: absolute; inset: 0; background: rgba(30, 30, 20, .45); }
   .sheet__panel {
     position: absolute; left: 0; right: 0; bottom: 0; max-height: 82vh; display: flex; flex-direction: column;
-    background: #fff; border-radius: 16px 16px 0 0; transform: translateY(100%); transition: transform .3s cubic-bezier(.2, .8, .2, 1);
+    background: #fff; border-radius: 16px 16px 0 0;
   }
-  .sheet.is-open .sheet__panel { transform: none; }
+  .sheet__head { touch-action: none; cursor: grab; } /* drag the top of the panel down to close it */
   .sheet__head { display: flex; justify-content: space-between; align-items: center; padding: 16px 16px 6px; position: relative; }
   .sheet__head::before { content: ""; position: absolute; top: 7px; left: 50%; width: 40px; height: 4px; margin-left: -20px; border-radius: 2px; background: var(--line); }
   .sheet__head h2 { font-size: 22px; }

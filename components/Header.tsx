@@ -1,5 +1,6 @@
 "use client";
 
+import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef, useState } from "react";
@@ -8,6 +9,12 @@ import { useCart, useStored, useWishlist, write } from "@/lib/store";
 import { collectionProducts, collectionUrl, priceText, productUrl, searchProducts, waLink } from "@/lib/utils";
 import { IMAGE_SIZES, Logo, ProductImage } from "./Bits";
 import { BagIcon, CloseIcon, HeartIcon, MenuIcon, SearchIcon } from "./Icons";
+import { scrim, SPRING } from "./Motion";
+
+const MotionLink = motion.create(Link);
+// Drawer links slide in one after another.
+const drawerList = { open: { transition: { staggerChildren: 0.035, delayChildren: 0.08 } } };
+const drawerItem = { closed: { opacity: 0, x: -14 }, open: { opacity: 1, x: 0 } };
 
 // Suggested in the search panel; only terms that find at least one saree are shown.
 const POPULAR = ["Block print", "Zari", "Temple border", "Handloom", "Office", "Festive", "Red", "Blue"].filter((t) => searchProducts(t).length);
@@ -186,62 +193,74 @@ function HeaderView({ query }: { query: URLSearchParams | null }) {
         </div>
       </header>
 
-      <div className={"drawer" + (drawer ? " is-open" : "")} aria-hidden={!drawer}>
-        <div className="drawer__scrim" onClick={() => setDrawer(false)} />
-        <div className="drawer__panel" role="dialog" aria-modal="true" aria-label="Menu">
-          <div className="drawer__head">
-            <Link className="logo" href="/"><Logo /></Link>
-            <button className="icon-btn" aria-label="Close menu" onClick={() => setDrawer(false)}><CloseIcon /></button>
-          </div>
-          <ul>
-            {NAV.map((n) => (
-              <li key={n.key}>
-                {n.children ? (
-                  <details>
-                    <summary>{n.label}</summary>
-                    <ul>{n.children.map((c) => <li key={c.href + c.label}><Link href={c.href}>{c.label}</Link></li>)}</ul>
-                  </details>
-                ) : <Link href={n.href}>{n.label}</Link>}
-              </li>
-            ))}
-            <li><Link href="/finder">Help me choose</Link></li>
-            <li><Link href="/catalogue">Catalogue (PDF)</Link></li>
-            <li><Link href="/track-order">Track your order</Link></li>
-            <li><Link href="/wishlist">Wishlist</Link></li>
-            <li><Link href="/faq">FAQ</Link></li>
-          </ul>
-          <div className="drawer__foot">
-            <p>{SITE.address}</p>
-            <a className="btn btn--whatsapp btn--block" href={waLink()} target="_blank" rel="noopener">Chat on WhatsApp</a>
-          </div>
-        </div>
-      </div>
-
-      <div className={"search" + (search ? " is-open" : "")} aria-hidden={!search}>
-        <div className="search__scrim" onClick={() => setSearch(false)} />
-        <div className="search__panel" role="dialog" aria-modal="true" aria-label="Search">
-          <div className="wrap">
-            <form
-              className="search__form"
-              role="search"
-              onSubmit={(e) => { e.preventDefault(); if (q.trim()) runSearch(q.trim()); }}
+      <AnimatePresence>
+        {drawer ? (
+          <motion.div className="drawer" key="drawer" exit={{ pointerEvents: "none" }}>
+            <motion.div className="drawer__scrim" onClick={() => setDrawer(false)} {...scrim} />
+            <motion.div
+              className="drawer__panel" role="dialog" aria-modal="true" aria-label="Menu"
+              initial={{ x: "-100%" }} animate={{ x: 0 }} exit={{ x: "-100%" }} transition={SPRING}
             >
-              <SearchIcon width={22} height={22} />
-              <label className="sr-only" htmlFor="search-input">Search sarees</label>
-              <input
-                id="search-input" name="q" type="search" placeholder="Search sarees, colours, weaves" autoComplete="off"
-                value={q} onChange={(e) => setQ(e.target.value)} ref={searchInput}
-              />
-              <button type="button" className="icon-btn" aria-label="Close search" onClick={() => setSearch(false)}><CloseIcon /></button>
-            </form>
-            <div className="search__results">
-              {!q.trim() ? (
-                <div className="search__suggest">
-                  {recent.length ? (
-                    <div>
-                      <h3>Recent searches <button type="button" className="link-btn" onClick={() => write("vv_searches", [])}>Clear</button></h3>
-                      <div className="chips">{recent.map((t) => <button type="button" className="chip" key={t} onClick={() => runSearch(t)}>{t}</button>)}</div>
-                    </div>
+              <div className="drawer__head">
+                <Link className="logo" href="/"><Logo /></Link>
+                <button className="icon-btn" aria-label="Close menu" onClick={() => setDrawer(false)}><CloseIcon /></button>
+              </div>
+              <motion.ul variants={drawerList} initial="closed" animate="open">
+                {NAV.map((n) => (
+                  <motion.li key={n.key} variants={drawerItem}>
+                    {n.children ? (
+                      <details>
+                        <summary>{n.label}</summary>
+                        <ul>{n.children.map((c) => <li key={c.href + c.label}><Link href={c.href}>{c.label}</Link></li>)}</ul>
+                      </details>
+                    ) : <Link href={n.href}>{n.label}</Link>}
+                  </motion.li>
+                ))}
+                <motion.li variants={drawerItem}><Link href="/finder">Help me choose</Link></motion.li>
+                <motion.li variants={drawerItem}><Link href="/catalogue">Catalogue (PDF)</Link></motion.li>
+                <motion.li variants={drawerItem}><Link href="/track-order">Track your order</Link></motion.li>
+                <motion.li variants={drawerItem}><Link href="/wishlist">Wishlist</Link></motion.li>
+                <motion.li variants={drawerItem}><Link href="/faq">FAQ</Link></motion.li>
+              </motion.ul>
+              <div className="drawer__foot">
+                <p>{SITE.address}</p>
+                <a className="btn btn--whatsapp btn--block" href={waLink()} target="_blank" rel="noopener">Chat on WhatsApp</a>
+              </div>
+            </motion.div>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {search ? (
+          <motion.div className="search" key="search" exit={{ pointerEvents: "none" }}>
+            <motion.div className="search__scrim" onClick={() => setSearch(false)} {...scrim} />
+            <motion.div
+              className="search__panel" role="dialog" aria-modal="true" aria-label="Search"
+              initial={{ opacity: 0, y: -24 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -16, transition: { duration: 0.16 } }} transition={SPRING}
+            >
+              <div className="wrap">
+                <form
+                  className="search__form"
+                  role="search"
+                  onSubmit={(e) => { e.preventDefault(); if (q.trim()) runSearch(q.trim()); }}
+                >
+                  <SearchIcon width={22} height={22} />
+                  <label className="sr-only" htmlFor="search-input">Search sarees</label>
+                  <input
+                    id="search-input" name="q" type="search" placeholder="Search sarees, colours, weaves" autoComplete="off"
+                    value={q} onChange={(e) => setQ(e.target.value)} ref={searchInput}
+                  />
+                  <button type="button" className="icon-btn" aria-label="Close search" onClick={() => setSearch(false)}><CloseIcon /></button>
+                </form>
+                <div className="search__results">
+                  {!q.trim() ? (
+                    <div className="search__suggest">
+                      {recent.length ? (
+                        <div>
+                          <h3>Recent searches <button type="button" className="link-btn" onClick={() => write("vv_searches", [])}>Clear</button></h3>
+                          <div className="chips">{recent.map((t) => <button type="button" className="chip" key={t} onClick={() => runSearch(t)}>{t}</button>)}</div>
+                        </div>
                   ) : null}
                   <div>
                     <h3>Popular searches</h3>
@@ -249,16 +268,21 @@ function HeaderView({ query }: { query: URLSearchParams | null }) {
                   </div>
                   <p className="hint">Not sure what you want? <Link href="/finder">Let us help you choose</Link>.</p>
                 </div>
-              ) : results.length ? results.map((p) => (
-                <Link className="search__item" href={productUrl(p)} key={p.id} onClick={() => remember(q.trim())}>
+              ) : results.length ? results.map((p, i) => (
+                <MotionLink
+                  className="search__item" href={productUrl(p)} key={p.id} onClick={() => remember(q.trim())}
+                  initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03, duration: 0.25 }}
+                >
                   <span className="media"><ProductImage p={p} sizes={IMAGE_SIZES.thumb} /></span>
                   <span>{p.name}<small>{WEAVES[p.weave].label} · {priceText(p)}</small></span>
-                </Link>
+                </MotionLink>
               )) : <p className="hint">No sarees match &quot;{q.trim()}&quot;. Try a colour like &quot;blue&quot; or a weave like &quot;ikat&quot;.</p>}
             </div>
           </div>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
+        ) : null}
+      </AnimatePresence>
     </>
   );
 }

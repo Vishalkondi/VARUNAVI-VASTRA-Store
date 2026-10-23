@@ -86,9 +86,8 @@
 .hero__explore a:hover { background: var(--olive-deep); border-color: var(--olive-deep); color: #fff; transform: translateY(-1px); }
 /* Rotating last word of the heading: words stack in one grid cell and cross-fade */
 .hero__rotate { display: inline-grid; vertical-align: bottom; font-style: italic; color: var(--pink); }
-.hero__rotate > span { grid-area: 1 / 1; opacity: 0; transform: translateY(.35em); transition: opacity .5s ease, transform .5s ease; }
-.hero__rotate > span.is-on { opacity: 1; transform: none; }
-.hero__rotate > span:not(.is-on) { transform: translateY(-.35em); }
+.hero__rotate > span { grid-area: 1 / 1; } /* the shown word is swapped by Framer Motion (HeroMotion.tsx) */
+.hero__rotate-size { visibility: hidden; }
 .hero__stats dt { font-variant-numeric: tabular-nums; }
 /* Scroll cue, bottom of the banner on wide screens */
 .hero__scroll {

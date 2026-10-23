@@ -1,5 +1,6 @@
 "use client";
 
+import { AnimatePresence } from "framer-motion";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { PRODUCTS, SITE, WEAVES, type Product } from "@/lib/data";
 import { read, write } from "@/lib/store";
@@ -53,7 +54,7 @@ export function Gallery({ p }: { p: Product }) {
         {hasPhoto ? <span className="gallery__expand" aria-hidden="true"><ExpandIcon /> Tap to view full screen</span> : null}
       </div>
       {hasPhoto ? <button type="button" className="sr-only" onClick={() => setViewer(slot)}>Open photo full screen</button> : null}
-      {viewer !== null ? <Lightbox slides={viewerSlides(p)} start={viewer} onClose={() => setViewer(null)} /> : null}
+      <AnimatePresence>{viewer !== null ? <Lightbox slides={viewerSlides(p)} start={viewer} onClose={() => setViewer(null)} /> : null}</AnimatePresence>
     </div>
   );
 }

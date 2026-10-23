@@ -6,7 +6,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
-import { AnimatePresence, motion, MotionConfig, useScroll } from "framer-motion";
+import { AnimatePresence, motion, useScroll } from "framer-motion";
 import { WEAVES, type Product } from "@/lib/data";
 import { askPriceLink, hasPrice, priceText, productUrl, rupees } from "@/lib/utils";
 import { IMAGE_SIZES, ProductImage } from "./Bits";
@@ -98,94 +98,92 @@ export default function BoutiqueRail({ items }: { items: Product[] }) {
   const shown = active !== null ? items[active] : null;
 
   return (
-    <MotionConfig reducedMotion="user">
-      <section className="rail" aria-labelledby="rail-title">
-        <div className="rail__head wrap">
-          <p className="rail__kicker"><span>On the rail</span><span>Handwoven cotton</span></p>
-          <h2 id="rail-title">Pick one <em>off the rail.</em></h2>
-        </div>
+    <section className="rail" aria-labelledby="rail-title">
+      <div className="rail__head wrap">
+        <p className="rail__kicker"><span>On the rail</span><span>Handwoven cotton</span></p>
+        <h2 id="rail-title">Pick one <em>off the rail.</em></h2>
+      </div>
 
-        <div className="rail__stage" ref={stage}>
-          <svg className="rail__rod" viewBox="0 0 1000 100" preserveAspectRatio="none" aria-hidden="true">
-            <path d={`M0 10 Q500 ${10 + 2 * SAG} 1000 10`} className="rail__rod-body" vectorEffect="non-scaling-stroke" />
-            <path d={`M0 8.6 Q500 ${8.6 + 2 * SAG} 1000 8.6`} className="rail__rod-shine" vectorEffect="non-scaling-stroke" />
-          </svg>
+      <div className="rail__stage" ref={stage}>
+        <svg className="rail__rod" viewBox="0 0 1000 100" preserveAspectRatio="none" aria-hidden="true">
+          <path d={`M0 10 Q500 ${10 + 2 * SAG} 1000 10`} className="rail__rod-body" vectorEffect="non-scaling-stroke" />
+          <path d={`M0 8.6 Q500 ${8.6 + 2 * SAG} 1000 8.6`} className="rail__rod-shine" vectorEffect="non-scaling-stroke" />
+        </svg>
 
-          <ul
-            className="rail__track" ref={track} aria-label="Sarees on the rail"
-            onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp}
-            onMouseLeave={() => { onUp(); if (open === null) setActive(null); }}
-            onClickCapture={(e) => { if (drag.current.moved) { e.preventDefault(); e.stopPropagation(); setTimeout(() => { drag.current.moved = false; }); } }}
-          >
-            {items.map((p, i) => {
-              const facing = active === i;
-              const turn = active === null ? -72 : i < active ? 72 : i > active ? -72 : 0;
-              return (
-                <motion.li
-                  key={p.id} className={"rail__slot" + (facing ? " is-facing" : "")}
-                  initial={false} animate={{ width: facing ? size.open : size.side }} transition={spring}
-                  style={{ height: size.h + 70 }}
+        <ul
+          className="rail__track" ref={track} aria-label="Sarees on the rail"
+          onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp}
+          onMouseLeave={() => { onUp(); if (open === null) setActive(null); }}
+          onClickCapture={(e) => { if (drag.current.moved) { e.preventDefault(); e.stopPropagation(); setTimeout(() => { drag.current.moved = false; }); } }}
+        >
+          {items.map((p, i) => {
+            const facing = active === i;
+            const turn = active === null ? -72 : i < active ? 72 : i > active ? -72 : 0;
+            return (
+              <motion.li
+                key={p.id} className={"rail__slot" + (facing ? " is-facing" : "")}
+                initial={false} animate={{ width: facing ? size.open : size.side }} transition={spring}
+                style={{ height: size.h + 70 }}
+              >
+                <motion.div
+                  className="rail__piece" style={{ originY: 0 }}
+                  animate={facing ? { rotate: 0, y: -4 } : { rotate: [0, 1.4, 0, -1.4, 0], y: 0 }}
+                  transition={facing ? spring : { duration: 4.6 + (i % 4) * 0.7, repeat: Infinity, ease: "easeInOut", delay: (i % 5) * 0.3 }}
                 >
-                  <motion.div
-                    className="rail__piece" style={{ originY: 0 }}
-                    animate={facing ? { rotate: 0, y: -4 } : { rotate: [0, 1.4, 0, -1.4, 0], y: 0 }}
-                    transition={facing ? spring : { duration: 4.6 + (i % 4) * 0.7, repeat: Infinity, ease: "easeInOut", delay: (i % 5) * 0.3 }}
+                  <svg className="rail__hook" viewBox="0 0 24 34" aria-hidden="true">
+                    <path d="M12 33 V16 C12 12 18 11 18 6 C18 2.5 15 1 12 1 C9 1 7 3 7 5.5" />
+                  </svg>
+                  <span className="rail__tag" aria-hidden="true">{tagText(p)}</span>
+                  <motion.button
+                    type="button" className="rail__garment"
+                    style={{ width: size.open - 20, height: size.h }}
+                    initial={false} animate={{ rotateY: turn }} transition={spring}
+                    onPointerEnter={(e) => { if (e.pointerType === "mouse" && !drag.current.down) setActive(i); }}
+                    onFocus={(e) => { if (e.currentTarget.matches(":focus-visible")) setActive(i); }}
+                    onClick={() => pick(i)}
+                    aria-label={`${p.name}, ${p.soldOut ? "sold out" : priceText(p)}. Look closer`}
                   >
-                    <svg className="rail__hook" viewBox="0 0 24 34" aria-hidden="true">
-                      <path d="M12 33 V16 C12 12 18 11 18 6 C18 2.5 15 1 12 1 C9 1 7 3 7 5.5" />
-                    </svg>
-                    <span className="rail__tag" aria-hidden="true">{tagText(p)}</span>
-                    <motion.button
-                      type="button" className="rail__garment"
-                      style={{ width: size.open - 20, height: size.h }}
-                      initial={false} animate={{ rotateY: turn }} transition={spring}
-                      onPointerEnter={(e) => { if (e.pointerType === "mouse" && !drag.current.down) setActive(i); }}
-                      onFocus={(e) => { if (e.currentTarget.matches(":focus-visible")) setActive(i); }}
-                      onClick={() => pick(i)}
-                      aria-label={`${p.name}, ${p.soldOut ? "sold out" : priceText(p)}. Look closer`}
-                    >
-                      <span className="rail__bar" />
-                      {open === i ? <span className="rail__fabric rail__fabric--lifted" /> : (
-                        <motion.span layoutId={"rail-" + p.id} className="rail__fabric">
-                          <ProductImage p={p} sizes="200px" />
-                        </motion.span>
-                      )}
-                    </motion.button>
-                  </motion.div>
-                </motion.li>
-              );
-            })}
-          </ul>
-        </div>
-
-        <div className="rail__foot wrap">
-          <div className="rail__now" aria-live="polite">
-            <AnimatePresence mode="wait" initial={false}>
-              {shown ? (
-                <motion.div key={shown.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.2 }}>
-                  <strong>{shown.name}</strong>
-                  <span>{shown.soldOut ? "Sold out" : priceText(shown)}</span>
+                    <span className="rail__bar" />
+                    {open === i ? <span className="rail__fabric rail__fabric--lifted" /> : (
+                      <motion.span layoutId={"rail-" + p.id} className="rail__fabric">
+                        <ProductImage p={p} sizes="200px" />
+                      </motion.span>
+                    )}
+                  </motion.button>
                 </motion.div>
-              ) : (
-                <motion.p key="hint" className="rail__hint" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
-                  {touch ? "Tap a saree to turn it, tap again to look closer" : "Hover a saree · click to look closer"}
-                </motion.p>
-              )}
-            </AnimatePresence>
-          </div>
-          <div className="rail__progress" aria-hidden="true"><motion.i style={{ scaleX: scrollXProgress, originX: 0 }} /></div>
-          <div className="rail__nav">
-            <button type="button" aria-label="Slide the rail left" onClick={() => track.current?.scrollBy({ left: -track.current.clientWidth * 0.6, behavior: "smooth" })}>←</button>
-            <button type="button" aria-label="Slide the rail right" onClick={() => track.current?.scrollBy({ left: track.current.clientWidth * 0.6, behavior: "smooth" })}>→</button>
-            <Link className="rail__all" href="/shop">Shop all sarees <span aria-hidden="true">→</span></Link>
-          </div>
-        </div>
+              </motion.li>
+            );
+          })}
+        </ul>
+      </div>
 
-        <AnimatePresence>
-          {open !== null ? <RailView key="view" p={items[open]} index={open} total={items.length} onClose={() => setOpen(null)} onStep={step} /> : null}
-        </AnimatePresence>
-      </section>
-    </MotionConfig>
+      <div className="rail__foot wrap">
+        <div className="rail__now" aria-live="polite">
+          <AnimatePresence mode="wait" initial={false}>
+            {shown ? (
+              <motion.div key={shown.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.2 }}>
+                <strong>{shown.name}</strong>
+                <span>{shown.soldOut ? "Sold out" : priceText(shown)}</span>
+              </motion.div>
+            ) : (
+              <motion.p key="hint" className="rail__hint" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
+                {touch ? "Tap a saree to turn it, tap again to look closer" : "Hover a saree · click to look closer"}
+              </motion.p>
+            )}
+          </AnimatePresence>
+        </div>
+        <div className="rail__progress" aria-hidden="true"><motion.i style={{ scaleX: scrollXProgress, originX: 0 }} /></div>
+        <div className="rail__nav">
+          <button type="button" aria-label="Slide the rail left" onClick={() => track.current?.scrollBy({ left: -track.current.clientWidth * 0.6, behavior: "smooth" })}>←</button>
+          <button type="button" aria-label="Slide the rail right" onClick={() => track.current?.scrollBy({ left: track.current.clientWidth * 0.6, behavior: "smooth" })}>→</button>
+          <Link className="rail__all" href="/shop">Shop all sarees <span aria-hidden="true">→</span></Link>
+        </div>
+      </div>
+
+      <AnimatePresence>
+        {open !== null ? <RailView key="view" p={items[open]} index={open} total={items.length} onClose={() => setOpen(null)} onStep={step} /> : null}
+      </AnimatePresence>
+    </section>
   );
 }
 
