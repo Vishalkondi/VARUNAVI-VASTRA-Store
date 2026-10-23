@@ -1,0 +1,81 @@
+/* Varunavi Vastra — base styles: colours, fonts, reset, layout, buttons */
+
+:root {
+  --olive: #A3AD54;
+  --olive-deep: #6C7632;
+  --olive-tint: #EEF0DC;
+  --pink: #D14C85;
+  --pink-dark: #b93a71;
+  --blush: #FBE9F1;
+  --cream: #FBF8F1;
+  --white: #ffffff;
+  --ink: #2b2a25;
+  --muted: #77736a;
+  --line: #e8e3d8;
+  --footer: #2d311c;
+  --whatsapp: #25D366;
+  --whatsapp-dark: #1a9e4b;
+
+  --serif: var(--font-lora), Georgia, serif;
+  --sans: var(--font-poppins), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --logo: var(--font-yatra), var(--font-lora), serif;
+
+  --wrap: 1200px;
+  --gutter: 24px;
+  --radius: 4px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--ink);
+  background: var(--white);
+}
+img { max-width: 100%; display: block; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; cursor: pointer; background: none; border: 0; padding: 0; }
+input, select, textarea { font: inherit; color: inherit; }
+h1, h2, h3, h4 { font-family: var(--serif); font-weight: 400; line-height: 1.2; margin: 0; }
+p { margin: 0 0 1em; }
+:focus-visible { outline: 2px solid var(--pink); outline-offset: 2px; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+.wrap { max-width: var(--wrap); margin: 0 auto; padding: 0 var(--gutter); }
+.narrow { max-width: 780px; }
+.section { padding: 72px 0; }
+.section--cream { background: var(--cream); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.center { text-align: center; }
+
+/* ---------- Buttons ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 13px 28px; border: 1px solid transparent; border-radius: 2px;
+  font-size: 12px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase;
+  transition: background .2s, color .2s, border-color .2s;
+}
+.btn--pink { background: var(--pink); color: #fff; }
+.btn--pink:hover { background: var(--pink-dark); }
+.btn--olive { background: var(--olive-deep); color: #fff; }
+.btn--olive:hover { background: #59622a; }
+.btn--outline { border-color: var(--olive-deep); color: var(--olive-deep); background: transparent; }
+.btn--outline:hover { background: var(--olive-deep); color: #fff; }
+.btn--white { background: #fff; color: var(--pink); }
+.btn--white:hover { background: var(--blush); }
+.btn--whatsapp { border-color: var(--whatsapp); color: var(--whatsapp-dark); background: #fff; text-transform: none; letter-spacing: 0; font-size: 14px; }
+.btn--whatsapp:hover { background: #effcf3; }
+.btn--block { width: 100%; }
+.btn-row { display: flex; gap: 14px; flex-wrap: wrap; }
+
+.eyebrow { font-size: 11px; font-weight: 500; letter-spacing: .28em; text-transform: uppercase; color: var(--pink); margin-bottom: 14px; }
+
+/* Section heading with the small diamond divider */
+.heading { text-align: center; margin-bottom: 40px; }
+.heading h2 { font-size: clamp(26px, 3.2vw, 34px); }
+.heading p { color: var(--muted); font-size: 14px; margin: 14px 0 0; }
+.divider { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 12px; }
+.divider::before, .divider::after { content: ""; width: 44px; height: 1px; background: var(--olive); }
+.divider span { width: 7px; height: 7px; background: var(--pink); transform: rotate(45deg); }

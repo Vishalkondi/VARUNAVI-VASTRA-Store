@@ -1,0 +1,109 @@
+/* ---------- Category tiles ---------- */
+.tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+.tile { position: relative; aspect-ratio: 3 / 3.8; border-radius: var(--radius); overflow: hidden; display: block; }
+.tile .ph { position: absolute; inset: 0; transition: transform .5s; }
+.tile:hover .ph { transform: scale(1.04); }
+.tile::before { content: ""; position: absolute; inset: 0; z-index: 1; background: linear-gradient(180deg, transparent 55%, rgba(0,0,0,.45)); }
+.tile__text { position: absolute; left: 18px; bottom: 18px; z-index: 2; color: #fff; }
+.tile__text h3 { font-size: 21px; }
+.tile__text span { font-size: 10.5px; letter-spacing: .18em; font-weight: 600; }
+
+/* ---------- Product cards ---------- */
+.grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 36px 22px; }
+.card { position: relative; }
+.card__media { aspect-ratio: 3 / 4; border-radius: 2px; }
+.card__media .ph, .card__media img { transition: transform .5s; }
+.card:hover .card__media .ph, .card:hover .card__media img { transform: scale(1.03); }
+.badge {
+  position: absolute; top: 10px; left: 10px; z-index: 2; background: #fff; color: var(--pink);
+  font-size: 9.5px; font-weight: 600; letter-spacing: .12em; padding: 3px 8px; border-radius: 2px;
+}
+.card__wish {
+  position: absolute; top: 8px; right: 8px; z-index: 2; width: 34px; height: 34px; border-radius: 50%;
+  background: rgba(255,255,255,.92); display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity .2s;
+}
+.card:hover .card__wish, .card__wish.is-on, .card__wish:focus-visible { opacity: 1; }
+.card__wish svg { width: 17px; height: 17px; }
+.card__wish.is-on svg { fill: var(--pink); stroke: var(--pink); }
+.card__body { padding-top: 12px; }
+.card__name { font-family: var(--sans); font-size: 14.5px; font-weight: 500; }
+.card__name a:hover { color: var(--pink); }
+.card__sub { font-size: 12.5px; color: var(--muted); }
+.price { color: var(--olive-deep); font-weight: 600; }
+.card .price { font-size: 14.5px; }
+.view-all { text-align: center; margin-top: 44px; }
+
+/* ---------- Saree of the week ---------- */
+.spotlight { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center; }
+.spotlight .media { aspect-ratio: 4 / 5; border-radius: var(--radius); }
+.spotlight h2 { font-size: clamp(28px, 3.4vw, 40px); margin-bottom: 6px; }
+.spotlight .price { font-size: 22px; margin: 14px 0; display: block; }
+.spotlight p { color: var(--muted); }
+
+/* ---------- Story split ---------- */
+.split { display: grid; grid-template-columns: 1fr 1fr; background: var(--olive-tint); }
+.split .media { min-height: 440px; }
+.split__text { padding: 64px max(var(--gutter), 7vw) 64px 64px; display: flex; flex-direction: column; justify-content: center; }
+.split h2 { font-size: clamp(28px, 3.2vw, 38px); margin-bottom: 18px; }
+.split p { color: var(--muted); max-width: 440px; margin-bottom: 28px; }
+
+/* ---------- Trust strip ---------- */
+.trust { background: var(--cream); border-top: 1px solid var(--line); padding: 30px 0; }
+.trust__list { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; list-style: none; margin: 0; padding: 0; }
+.trust__item { display: flex; gap: 14px; align-items: center; }
+.trust__icon { width: 46px; height: 46px; border-radius: 50%; background: var(--olive-tint); color: var(--olive-deep); display: flex; align-items: center; justify-content: center; flex: none; }
+.trust__icon svg { width: 20px; height: 20px; }
+.trust__item strong { display: block; font-size: 13.5px; font-weight: 600; }
+.trust__item span { font-size: 12.5px; color: var(--muted); }
+
+/* ---------- Enquiry band ---------- */
+.band { background: var(--pink); color: #fff; text-align: center; padding: 72px 0; }
+.band h2 { font-size: clamp(26px, 3.2vw, 36px); margin-bottom: 12px; }
+.band p { max-width: 520px; margin: 0 auto 26px; opacity: .92; }
+
+/* ---------- Instagram grid ---------- */
+.insta { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
+.insta a { aspect-ratio: 1; display: block; position: relative; overflow: hidden; border-radius: 2px; }
+.insta .ph { position: absolute; inset: 0; transition: opacity .2s; }
+.insta a:hover .ph { opacity: .85; }
+
+/* ---------- Newsletter ---------- */
+.newsletter { background: var(--cream); padding: 56px 0; text-align: center; border-top: 1px solid var(--line); }
+.newsletter h2 { font-size: 24px; margin-bottom: 20px; }
+.inline-form { display: flex; max-width: 420px; margin: 0 auto; }
+.inline-form input { flex: 1; min-width: 0; border: 1px solid var(--line); border-right: 0; padding: 12px 14px; background: #fff; font-size: 14px; }
+.inline-form .btn { padding: 12px 22px; }
+.form-msg { font-size: 14px; color: var(--olive-deep); margin-top: 12px; }
+
+/* ---------- Footer ---------- */
+.footer { background: var(--footer); color: #d9dccb; padding: 60px 0 26px; font-size: 13.5px; }
+.footer__grid { display: grid; grid-template-columns: 1.6fr 1fr 1fr 1fr; gap: 36px; }
+.footer__logo { display: inline-flex; background: #fff; padding: 10px 18px 6px; border-radius: 3px; margin-bottom: 18px; }
+.footer__logo .logo__word { font-size: 26px; }
+.footer__logo .logo svg { width: 26px; height: 20px; margin-bottom: -5px; }
+.footer__logo .logo img { height: 44px; }
+.footer h4 { color: #fff; font-size: 17px; margin-bottom: 14px; }
+.footer ul { list-style: none; margin: 0; padding: 0; }
+.footer li { margin-bottom: 7px; }
+.footer a:hover { color: #fff; text-decoration: underline; }
+.footer address { font-style: normal; }
+.footer__bottom { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; border-top: 1px solid rgba(255,255,255,.15); margin-top: 44px; padding-top: 22px; font-size: 12px; color: #aeb29c; }
+
+/* Floating WhatsApp */
+.wa-float {
+  position: fixed; right: 22px; bottom: 22px; z-index: 40; display: flex; align-items: center; gap: 10px;
+  background: #fff; border-radius: 999px; padding: 6px 16px 6px 6px; box-shadow: 0 6px 20px rgba(0,0,0,.18);
+  font-size: 13px; font-weight: 500;
+}
+.wa-float__icon { width: 40px; height: 40px; border-radius: 50%; background: var(--whatsapp); color: #fff; display: flex; align-items: center; justify-content: center; }
+.wa-float__icon svg { width: 22px; height: 22px; }
+
+/* Toast */
+.toast {
+  position: fixed; left: 50%; bottom: 28px; transform: translate(-50%, 20px); z-index: 120;
+  background: var(--ink); color: #fff; padding: 12px 20px; border-radius: 3px; font-size: 14px;
+  opacity: 0; pointer-events: none; transition: opacity .25s, transform .25s; max-width: calc(100vw - 32px);
+}
+.toast.is-on { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+.toast a { text-decoration: underline; margin-left: 10px; color: #f6c6db; }
