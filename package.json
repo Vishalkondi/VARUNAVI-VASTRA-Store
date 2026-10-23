@@ -11,6 +11,7 @@
     "photos": "node scripts/optimize-photos.mjs"
   },
   "dependencies": {
+    "framer-motion": "^12.43.0",
     "next": "^16.4.1",
     "qrcode-generator": "^2.0.4",
     "react": "^19.3.1",

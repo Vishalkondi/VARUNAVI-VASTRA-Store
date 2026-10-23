@@ -8,6 +8,7 @@ import SareeArt, { artKind } from "@/components/SareeArt";
 import { LotusIcon } from "@/components/Icons";
 import { CountUp, Hotspot, PhotoDrift, RotatingWord, ScrollCue } from "@/components/HeroMotion";
 import { OpenStatus, ShipsBy } from "@/components/Extras";
+import BoutiqueRail from "@/components/BoutiqueRail";
 import { COLLECTIONS, OCCASION_TITLES, OCCASIONS, POSTS, PRODUCTS, SITE, WEAVES } from "@/lib/data";
 import { askPriceLink, byId, waLink, collectionProducts, collectionUrl, hasPrice, priceText, productUrl } from "@/lib/utils";
 
@@ -22,6 +23,8 @@ export default function Home() {
     ...(["handloom", "festive", "print"] as const).map((k) => ({ label: WEAVES[k].label, href: "/shop?weave=" + k, p: PRODUCTS.find((p) => p.weave === k)! })),
     { label: "New Arrivals", href: "/shop?new=1", p: arrivals[arrivals.length - 1] || PRODUCTS[0] },
   ];
+  // On the rail: sarees with photos first, sold-out ones last.
+  const rail = [...PRODUCTS].sort((a, b) => Number(!!a.soldOut) - Number(!!b.soldOut) || Number(!a.images.length) - Number(!b.images.length));
   const bestsellers = PRODUCTS.filter((p) => p.bestseller).slice(0, 4);
   const spot = byId(SITE.sareeOfTheWeek) || PRODUCTS[0];
   const sisters = sistersPhoto();
@@ -108,6 +111,9 @@ export default function Home() {
           ))}
         </div>
       </div>
+
+      {/* Every saree hung on a boutique rail: hover to turn one round, click to lift it off */}
+      <BoutiqueRail items={rail} />
 
       <section className="section">
         <div className="wrap">
